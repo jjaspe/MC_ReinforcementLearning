@@ -21,7 +21,7 @@ export class ExpScorer {
     scoreGame = function(isVictory, world) {
         var hero = Math.max(0, world.hero.health)
         var boss = Math.max(0, world.boss.health)
-        var score = (isVictory ? 1 : -1)*Math.pow(10, this.powerConstant*(hero+boss))
+        var score = (isVictory ? 1 : -1)*Math.pow(2, this.powerConstant*(hero+boss))
         return score*this.linearConstant;
     }
 }

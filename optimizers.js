@@ -42,7 +42,9 @@ export class BatchPassPickBestOptimizer {
         var history = []
         var scores = []
         for (var x = 0; x < epochs; x++) {
+            debug('Starting epoch:', x)
             var bestBatchScore = -Infinity
+            var batchPickedActions = []
             for (var i = 0; i < this.batchSize; i++) {
                 this.policy.onMatchStart()
                 var game = this.gameInitializer()
@@ -51,6 +53,7 @@ export class BatchPassPickBestOptimizer {
                 var score = this.scorer.scoreGame(isVictory, game.world)
                 if (score > bestBatchScore) {
                     bestBatchScore = score
+                    batchPickedActions = this.policy.pickedActions;
                 }
             }
             print('Score:', bestBatchScore)

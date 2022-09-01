@@ -31,6 +31,7 @@ class Game {
     this.payForCardsLayer = layers.shift();
     this.pickAttackCardLayer = layers.shift();
     this.attackLayer = layers.shift();
+    this.exhaustCardLayer = layers.shift();
     this.playerContinueTurnLayer = layers.shift();
     this.rebuildHandLayer = layers.shift();
     this.bossDrawLayer = layers.shift();

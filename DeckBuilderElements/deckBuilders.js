@@ -147,7 +147,7 @@ class DamageAndCustomCostDeckBuilder extends BaseDeckBuilder {
       var cost = 1
       switch (i) {
         case 0:
-          cost = 0
+          cost = 1
           break;
         case 1:
           cost = 1

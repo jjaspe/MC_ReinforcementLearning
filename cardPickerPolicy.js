@@ -217,6 +217,11 @@ class BaseRLPolicy extends BasePolicy{
     this.pickedActions = []
   }
 
+  onMatchStart = function() {
+    this.pickedActions = [];
+    this.turns = 0;
+  }
+
   debugUpdate = function (inputs, labels, previous = []) {
     previous.push(this.peek())
     if (previous.length > 1) {
@@ -267,11 +272,6 @@ export class PickCardAtATimeDensePolicy extends BaseRLPolicy{
     await this.updateModel(inputMatrix, labels)
   }
 
-  onMatchStart = function() {
-    this.pickedIndexCards = [];
-    this.turns = 0;
-  }
-
   getUniqueCards = function(hand) {
     var uniqueCards = []
     hand.forEach((card) => {
@@ -298,6 +298,8 @@ export class PickCardAtATimeDensePolicy extends BaseRLPolicy{
     var inputMatrix = inputTensors.reduce((a, b) => a.concat(b,1)).transpose()
     // Run each card through model to get probability of picking each card
     var predictions = this.model.predict(inputMatrix)
+    var testPred = predictions.arraySync()
+    var testPeek = this.peek();
     var pickedCardIndex = this.predictionPicker(predictions)
     var pickedCard = uniqueCards[pickedCardIndex]
     // Save picked Card as index array
@@ -333,11 +335,6 @@ export class HandPermutationDensePolicy extends BaseRLPolicy{
     await this.updateModel(inputMatrix, labels)
   }
 
-  onMatchStart = function() {
-    this.pickedIndexCombinations = [];
-    this.turns = 0;
-  }
-
   oneHotCombinationToColumnTensor = function(oneHotCombination, inputUnits) {
     var combinationTensor = tf.tensor(oneHotCombination,[oneHotCombination.length,this.lenUniqueCards], 'float32')
     var paddedCombinationTensor = this.padCombinationTensor(combinationTensor)
@@ -369,7 +366,7 @@ export class HandPermutationDensePolicy extends BaseRLPolicy{
     var pickedCombinationIndex = this.predictionPicker(predictions)
     var pickedCombination = possiblePlayedCards[pickedCombinationIndex]
     // var test = inputMatrix.arraySync()
-    // Save picked combination as index array
+    // Save actions for update
     this.pickedActions.push(inputMatrix.arraySync()[pickedCombinationIndex])
     print(pickedCombination.map(n => ({damage:n.attack, cost:n.cost})))
     var newHistory = pickedCombination.map(n => n.attack)
