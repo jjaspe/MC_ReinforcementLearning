@@ -8,7 +8,7 @@ export class BasePolicy{
     switch (policyType) {
       case POLICY_TYPES.ONE_LAYER:
         return new OneLayerPolicy(encoder, learningRate)
-      case POLICY_TYPES.RL_ARG_MAX:
+      case POLICY_TYPES.RL_GREEDY:
         var policy = new HandPermutationDensePolicy(encoder, null, config.HIDDEN_LAYERS, learningRate)
         policy.predictionPicker = policy.pickMax;
         return policy;
@@ -16,7 +16,7 @@ export class BasePolicy{
         var policy = new HandPermutationDensePolicy(encoder, null, config.HIDDEN_LAYERS, learningRate)
         policy.predictionPicker = policy.pickIndexOverDistribution;
         return policy;
-      case POLICY_TYPES.RL_PICK_CARD_AT_A_TIME_ARG_MAX:
+      case POLICY_TYPES.RL_PICK_CARD_AT_A_TIME_GREEDY:
         var policy = new PickCardAtATimeDensePolicy(encoder, null, config.HIDDEN_LAYERS, learningRate)
         policy.predictionPicker = policy.pickMax;
         return policy;
@@ -70,9 +70,18 @@ export class BasePolicy{
 
   pickMax = function(result) {
     var maxIndex = tf.argMax(result.arraySync()).arraySync()[0]
-    console.log(maxIndex)
+    // console.log(maxIndex)
     return maxIndex
   }  
+
+  eGreedyPicker = function(result, epsilon) {
+    var random = Math.random()
+    if(random < epsilon) {
+      return Math.floor(Math.random() * result.shape[1])
+    } else {
+      return this.pickMax(result)
+    }
+  }
 
   buildUpToNCardCombinations = function(n, cards) {
     var combinations = []
@@ -205,6 +214,7 @@ class BaseRLPolicy extends BasePolicy{
     this.lenUniqueCards = config.MAX_HERO_ALLY_ATTACK - config.MIN_HERO_ALLY_ATTACK + 1 
     // bind this for combinationToColumnTensor
     this.combinationToColumnTensor = this.combinationToColumnTensor.bind(this)
+    this.pickedActions = []
   }
 
   debugUpdate = function (inputs, labels, previous = []) {
@@ -252,11 +262,9 @@ export class PickCardAtATimeDensePolicy extends BaseRLPolicy{
 
   update = async function (score) {
     var avgScore = score / this.turns;
-    var oneHotCards = this.pickedIndexCards.map(n => this.encoder.getOneHotEncodedCardByIndex([n]))
-    var oneHotCombTensors = oneHotCards.map(this.encodedCardToColumnTensor).map(n => n.transpose())
-    
-    var labels = tf.tensor1d([avgScore], 'float32')
-    await this.updateModel(oneHotCombTensors[0], labels)
+    var inputMatrix = tf.tensor2d([...this.pickedActions], [this.pickedActions.length, this.inputUnits])
+    var labels = tf.tensor1d([...this.pickedActions.map(n => avgScore)], 'float32')
+    await this.updateModel(inputMatrix, labels)
   }
 
   onMatchStart = function() {
@@ -290,16 +298,13 @@ export class PickCardAtATimeDensePolicy extends BaseRLPolicy{
     var inputMatrix = inputTensors.reduce((a, b) => a.concat(b,1)).transpose()
     // Run each card through model to get probability of picking each card
     var predictions = this.model.predict(inputMatrix)
-    // var prob22 = this.getProbabilityForPermutation([0,0,1,0], inputMatrix.arraySync(), predictions.arraySync())
     var pickedCardIndex = this.predictionPicker(predictions)
     var pickedCard = uniqueCards[pickedCardIndex]
-    // var test = predictions.arraySync()
     // Save picked Card as index array
-    var indecesInUniqueCards = this.encoder.getIndexOfCard(pickedCard)
-    this.pickedIndexCards.push(indecesInUniqueCards)
+    this.pickedActions.push(inputMatrix.arraySync()[pickedCardIndex])
     print({damage:pickedCard.attack, cost:pickedCard.cost})
-    var newHistory = pickedCard.attack
-    this.history.push(newHistory)
+    // var newHistory = pickedCard.attack
+    // this.history.push(newHistory)
     this.turns++;
     return [pickedCard]
   }
@@ -323,11 +328,9 @@ export class HandPermutationDensePolicy extends BaseRLPolicy{
   
   update = async function (score) {
     var avgScore = score / this.turns;
-    var oneHotCombinations = this.pickedIndexCombinations.map(n => n.map(this.encoder.getOneHotEncodedCardByIndex))
-    var oneHotCombTensors = oneHotCombinations.map(this.oneHotCombinationToColumnTensor).map(n => n.transpose())
-    
-    var labels = tf.tensor1d([avgScore], 'float32')
-    await this.updateModel(oneHotCombTensors[0], labels)
+    var inputMatrix = tf.tensor2d([...this.pickedActions], [this.pickedActions.length, this.inputUnits])
+    var labels = tf.tensor1d([...this.pickedActions.map(n => avgScore)], 'float32')
+    await this.updateModel(inputMatrix, labels)
   }
 
   onMatchStart = function() {
@@ -361,17 +364,13 @@ export class HandPermutationDensePolicy extends BaseRLPolicy{
     })
     // Build matrix of permutations
     var inputMatrix = inputTensors.reduce((a, b) => a.concat(b,1)).transpose()
-    var perm22 = [0,0,1,0,0,0,1,0];
-    var perm30 = [0,0,0,1,1,0,0,0];
     // Run each combination through model to get probability of picking each card
     var predictions = this.model.predict(inputMatrix)
-    var prob22 = this.getProbabilityForPermutation(perm22, inputMatrix.arraySync(), predictions.arraySync())
     var pickedCombinationIndex = this.predictionPicker(predictions)
     var pickedCombination = possiblePlayedCards[pickedCombinationIndex]
-    var test = predictions.arraySync()
+    // var test = inputMatrix.arraySync()
     // Save picked combination as index array
-    var indecesInUniqueCards = this.encoder.getIndecesOfCards(pickedCombination)
-    this.pickedIndexCombinations.push(indecesInUniqueCards)
+    this.pickedActions.push(inputMatrix.arraySync()[pickedCombinationIndex])
     print(pickedCombination.map(n => ({damage:n.attack, cost:n.cost})))
     var newHistory = pickedCombination.map(n => n.attack)
     this.history.push(newHistory)
@@ -381,8 +380,8 @@ export class HandPermutationDensePolicy extends BaseRLPolicy{
 }
 
 export const POLICY_TYPES = {
-  RL_PICK_CARD_AT_A_TIME_ARG_MAX: 'RL_PICK_CARD_AT_A_TIME_ARG_MAX',
-  RL_ARG_MAX: 'RL_ARG_MAX',
+  RL_PICK_CARD_AT_A_TIME_GREEDY: 'RL_PICK_CARD_AT_A_TIME_GREEDY',
+  RL_GREEDY: 'RL_GREEDY',
   RL_OVER_DIST: 'RL_OVER_DIST',
   ONE_LAYER: 'ONE_LAYER'
 }

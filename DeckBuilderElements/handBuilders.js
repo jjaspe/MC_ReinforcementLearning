@@ -1,4 +1,4 @@
-import {Ally} from '../classes.js'
+import {Ally} from '../models/classes.js'
 import {config, print} from '../config.js'
 
 export const HAND_BUILDER_TYPES = {

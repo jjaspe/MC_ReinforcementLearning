@@ -1,5 +1,4 @@
 import { Ally } from './classes.js'
-import { config } from './config.js'
 
 class Hero extends Ally {
   constructor(name, text, health, attack, thawrt, defense, alterEgo) {

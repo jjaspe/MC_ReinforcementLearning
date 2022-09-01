@@ -1,0 +1,7 @@
+{
+    "debug.javascript.automaticallyTunnelRemoteServer": false,
+    "debug.javascript.terminalOptions": {
+    
+    },
+    "debug.javascript.usePreview": false,
+}

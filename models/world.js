@@ -1,7 +1,5 @@
-import { Hero } from './hero.js'
 import { Ally } from './classes.js'
-import { Boss } from './boss.js'
-import {config} from './config.js'
+import {config} from '../config.js'
 
 
 class World {

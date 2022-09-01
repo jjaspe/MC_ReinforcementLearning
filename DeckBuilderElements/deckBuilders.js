@@ -1,7 +1,7 @@
-import { Ally } from '../classes.js'
+import { Ally } from '../models/classes.js'
 import { config } from '../config.js'
-import { Hero } from '../hero.js'
-import { Boss } from '../boss.js'
+import { Hero } from '../models/hero.js'
+import { Boss } from '../models/boss.js'
 import { BaseHandBuilder, HAND_BUILDER_TYPES } from './handBuilders.js'
 import { DeckShuffler, DefaultPostBuilder } from './postBuilders.js'
 

@@ -12,7 +12,7 @@ var config = {
     MAX_HERO_ALLY_COST: 50,
     MIN_HERO_ALLY_COST: 0,
     HERO_BUDGET:2,
-    PLAYER_TURN_LAYERS: 6,
+    PLAYER_TURN_LAYERS: 5,
     ALLOW_PRINT:false,
     ALLOW_DEBUG_PRINT:true,
     PLOT: true,

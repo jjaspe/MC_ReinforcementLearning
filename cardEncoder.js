@@ -81,7 +81,8 @@ export class DamageAndCostEncoder extends DamageEncoder {
   }
 
   encodeCard = function(card, world) {
-    var oh = oneHotEncodeCards([card])[0]
+    var oh = this.oneHotEncodeCards([card])[0]
     oh.push(world.turnBudget/ config.HERO_BUDGET);
+    return oh;
   }
 }

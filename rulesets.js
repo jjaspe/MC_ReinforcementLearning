@@ -2,7 +2,7 @@ import {config, print} from './config.js'
 import { BaseDeckBuilder } from './DeckBuilderElements/deckBuilders.js'
 import { BasePolicy } from './cardPickerPolicy.js'
 import { DamageEncoder } from './cardEncoder.js'
-import { World  } from './world.js'
+import { World  } from './models/world.js'
 
 class BaseRuleset {
   constructor(policy, deckBuilder) {

@@ -1,5 +1,5 @@
 import { POLICY_TYPES, BasePolicy } from './cardPickerPolicy.js'
-import { Game } from './game.js'
+import { Game } from './models/game.js'
 import { DECK_BUILDER_TYPES, BaseDeckBuilder } from './DeckBuilderElements/deckBuilders.js'
 import * as tf from '@tensorflow/tfjs';
 import {print, config, debug} from './config.js'
@@ -8,7 +8,7 @@ import {print, config, debug} from './config.js'
 import {plot} from 'nodeplotlib';
 import {BatchPassPickBestOptimizer, SinglePassOptimizer} from './optimizers.js'
 import {DamageAndCostRuleset, DamageOnlyRuleset, MultiCardDamageAndCostRuleset} from './rulesets.js'
-import { DamageEncoder } from './cardEncoder.js';
+import { DamageAndCostEncoder, DamageEncoder } from './cardEncoder.js';
 import DefaultBossDrawLayer from './GameLayers/bossDrawLayer.js';
 import {RebuildInitialHandDrawCardsLayer} from './GameLayers/drawCardsLayer.js';
 import {DefaultContinueLayer, TurnBudgetUsedContinueLayer} from './GameLayers/playerEndTurnLayer.js';
@@ -22,18 +22,18 @@ import DefaultBossEndTurnLayer from './GameLayers/bossEndTurnLayer.js';
 import { DefaultExhaustAttackCardsLayer } from './GameLayers/exhaustAttackCardsLayer.js';
 import { DefaultScorer, ExpScorer } from './GameLayers/gameScorer.js';
 import { BaseHandBuilder, HAND_BUILDER_TYPES } from './DeckBuilderElements/handBuilders.js';
-import { DefaultStartPlayerTurnLayer } from './GameLayers/startPlayerTurnLayer.js';
+import { DefaultStartGameLayer } from './GameLayers/startGameLayer.js';
 
 var learningRates = [1]
 var epochs = config.EPOCHS
 var deckBuilderType = DECK_BUILDER_TYPES.DAMAGE_AND_CUSTOM_COST
-var policyType = POLICY_TYPES.RL_PICK_CARD_AT_A_TIME_ARG_MAX
+var policyType = POLICY_TYPES.RL_PICK_CARD_AT_A_TIME_GREEDY
 
 function GameInitializer (ruleset, deckBuilder, policy) {
   var world = ruleset.makeWorld()
   world.heroHand = deckBuilder.buildHand(world.heroDeck, config.HAND_SIZE)
   var layers = [
-    new DefaultStartPlayerTurnLayer(),
+    new DefaultStartGameLayer(),
     new DefaultPickPayingCardsLayer(),
     new OneCardPickAttackCardsLayer(policy),
     new UnderCostBudgetAttackLayer(),
@@ -54,7 +54,7 @@ async function OptimizeOverLearningRates(learningRates){
   for(var i = 0; i < learningRates.length; i++) {
       var handBuilder = BaseHandBuilder.makeHandBuilder(HAND_BUILDER_TYPES.N_OF_EACH);
       var deckBuilder = BaseDeckBuilder.makeDeckBuilder(deckBuilderType,handBuilder);    
-      var encoder = new DamageEncoder(deckBuilder.cards)
+      var encoder = new DamageAndCostEncoder(deckBuilder.cards)
       var policy = BasePolicy.makePolicy(policyType, encoder, learningRates[i])
       var ruleset = new DamageAndCostRuleset(policy, deckBuilder)
       var initializer = () => GameInitializer(ruleset, deckBuilder, policy);
@@ -109,6 +109,7 @@ var optScore = config.SCORE_MULTIPLIER * (config.HERO_HEALTH - config.BOSS_ATTAC
 console.log('Opt Score:' + optScore)
 
 await OptimizeOverLearningRates(learningRates)
+
 
 
 /**

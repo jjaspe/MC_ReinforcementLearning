@@ -1,4 +1,4 @@
-import { print, config, debug } from './config.js'
+import { print, config, debug } from '../config.js'
 
 function drawCard(hand, deck, handSize) {
   if (deck.length < handSize) {
@@ -27,6 +27,16 @@ class Game {
   constructor(world, layers) {
     this.world = world;
     this.layers = layers;
+    this.startGameLayer = layers.shift();
+    this.payForCardsLayer = layers.shift();
+    this.pickAttackCardLayer = layers.shift();
+    this.attackLayer = layers.shift();
+    this.playerContinueTurnLayer = layers.shift();
+    this.rebuildHandLayer = layers.shift();
+    this.bossDrawLayer = layers.shift();
+    this.bossAttackLayer = layers.shift();
+    this.heroDefendLayer = layers.shift();
+    this.bossEndTurnLayer = layers.shift();
   }
 
   start = function() {
@@ -34,20 +44,21 @@ class Game {
   }
 
   playWithLayers = function() {
-    var layers = this.layers
-    var hero = this.world.hero;
-    var boss = this.world.boss;
-    var heroHand = this.world.heroHand;
+    var world = this.world;
+    var hero = world.hero;
+    var boss = world.boss;
     var gameEnd = false
     var victory = false
     var scheme = 0
     var handNumber = 0
+    this.startGameLayer.execute(world);
     while(!gameEnd){
       print('Playing hand ' + handNumber++)
       while(this.world.isPlayerTurn){
-        for(var i = 0; i < config.PLAYER_TURN_LAYERS; i++){
-          layers[i].execute(this.world)
-        }
+        this.payForCardsLayer.execute(world);
+        this.pickAttackCardLayer.execute(world);
+        this.attackLayer.execute(world);
+        this.playerContinueTurnLayer.execute(world);
         if(isdead(boss)) {
           gameEnd = true
           victory = true
@@ -57,9 +68,11 @@ class Game {
       if(!gameEnd){
         // play the rest of the layers
         while(!this.world.isPlayerTurn){
-          for(var i = config.PLAYER_TURN_LAYERS; i < layers.length; i++){
-            layers[i].execute(this.world)
-          }
+          this.rebuildHandLayer.execute(world);
+          this.bossDrawLayer.execute(world);
+          this.bossAttackLayer.execute(world);
+          this.heroDefendLayer.execute(world);
+          this.bossEndTurnLayer.execute(world);
           if (isdead(hero)) {
             gameEnd = true
             break
