@@ -1,7 +1,4 @@
-import {config, print} from './config.js'
-import { BaseDeckBuilder } from './DeckBuilderElements/deckBuilders.js'
-import { BasePolicy } from './cardPickerPolicy.js'
-import { DamageEncoder } from './cardEncoder.js'
+import {config} from './config.js'
 import { World  } from './models/world.js'
 
 class BaseRuleset {
@@ -67,56 +64,12 @@ class DamageOnlyRuleset extends BaseRuleset{
     constructor(policy, deckBuilder) {
         super(policy,deckBuilder)
     }
-    
-    villainPhase = function(boss, card, hand) {
-    }
-
-    playerPhase = function(world, hand) {
-        var card = this.policy.pickCards(hand)[0]
-        print(`${world.hero.name} played ${card.name}`)
-        world.boss.health = hero.attackAction(world.boss, card)
-        print('Hero:', world.hero.health, '   ', 'Boss:', world.boss.health)
-    }
 }
 
 class DamageAndCostRuleset extends BaseRuleset{
     constructor(policy, deckBuilder) {
         super(policy, deckBuilder)
     }
-    
-    villainPhase = function(boss, card, scheme) {
-    }
-
-    playerPhase = function(world, hand) {
-        var card = this.policy.pickCards(hand)[0]
-        if(card.cost <= config.HERO_BUDGET){
-            world.boss.health = world.hero.attackAction(world.boss, card)
-        }
-        // this.removeCardsFromHand([card], hand)
-        // this.fillHand(hand, world.heroDeck)
-        // this.ensureHeroDeck(world.heroDeck)
-    }
 }
 
-class MultiCardDamageAndCostRuleset extends BaseRuleset{
-    constructor(policy, deckBuilder) {
-        super(policy, deckBuilder)
-    }    
-    
-    villainPhase = function(boss, card, scheme) {
-    }
-
-    playerPhase = function(world, hand) {
-        var cards = this.policy.pickCards(hand, config.HERO_BUDGET)        
-        var budget = config.HERO_BUDGET
-        for(var i = 0; i < cards.length; i++){
-            var card = cards[i]
-            if(card.cost <= budget){
-                budget -= card.cost
-                world.boss.health = world.hero.attackAction(world.boss, card)
-            }
-        }
-    }
-}
-
-export {DamageOnlyRuleset, DamageAndCostRuleset, MultiCardDamageAndCostRuleset}
+export {DamageOnlyRuleset, DamageAndCostRuleset}

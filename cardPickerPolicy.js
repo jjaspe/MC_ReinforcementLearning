@@ -1,160 +1,31 @@
 import * as tf from '@tensorflow/tfjs';
-import { math, model, sigmoid } from '@tensorflow/tfjs';
 import { config, print, debug } from './config.js';
-import { OneCardPickAttackCardsLayer } from './GameLayers/pickAttackCardLayer.js';
+import { BasePolicy } from './policies/basePolicy.js';
+import { BaseRLPolicy } from './policies/baseRLPolicy.js';
 
-export class BasePolicy{
+export class PolicyFactory{    
   static makePolicy = function(policyType, encoder, learningRate) {    
     switch (policyType) {
-      case POLICY_TYPES.ONE_LAYER:
-        return new OneLayerPolicy(encoder, learningRate)
-      case POLICY_TYPES.RL_GREEDY:
-        var policy = new HandPermutationDensePolicy(encoder, null, config.HIDDEN_LAYERS, learningRate)
-        policy.predictionPicker = policy.pickMax;
-        return policy;
-      case POLICY_TYPES.RL_OVER_DIST:
-        var policy = new HandPermutationDensePolicy(encoder, null, config.HIDDEN_LAYERS, learningRate)
-        policy.predictionPicker = policy.pickIndexOverDistribution;
-        return policy;
-      case POLICY_TYPES.RL_PICK_CARD_AT_A_TIME_GREEDY:
-        var policy = new PickCardAtATimeDensePolicy(encoder, null, config.HIDDEN_LAYERS, learningRate)
-        policy.predictionPicker = policy.pickMax;
+      case POLICY_TYPES.MANUAL_UPDATES:
+        return new ManualUpdatesPolicy(encoder, learningRate)
+      case POLICY_TYPES.RL_PICK_MULTIPLE_CARDS:
+        return new HandPermutationDensePolicy(encoder, null, config.HIDDEN_LAYERS, learningRate);
+      case POLICY_TYPES.RL_PICK_CARD_AT_A_TIME:
+        var policy = new PickCardAtATimeDensePolicy(encoder, null, config.HIDDEN_LAYERS, learningRate);
         return policy;
       default:
           throw 'Invalid policy type'
     }
   }
-
-  sigmoid = function(x) {
-    return 1 / (1 + Math.exp(-x))
-  }
-
-  static upByMin = function (probs){
-    var lowest = probs[0]
-    for (var i = 1; i < probs.length; i++) {
-      if (probs[i][0] < lowest) {
-        lowest = probs[i][0]
-      }
-    }
-    var sm = probs.map(n => [n[0] + (-lowest)])
-    return sm
-  }
-
-  pickIndexOverDistribution = function(result) {    
-    // var sm = result.arraySync().map(n => this.sigmoid(n))
-    var sm = BasePolicy.upByMin(result.arraySync())
-    // get sum of all elements in sm
-    var sum =  sm.reduce((a, b) => (a + Math.pow(b,3)), 0)
-    // divide each element by sum
-    var resultDistribution = sm.map(n => Math.pow(n,3) / sum)
-    console.log("C:",resultDistribution[32], "%");
-    // var highest = resultDistribution[0]
-    // var highestIndex = 0
-    // for (var i = 1; i < resultDistribution.length; i++) {
-    //   if (resultDistribution[i] > highest) {
-    //     highest = resultDistribution[i]
-    //     highestIndex = i
-    //   }
-    // }
-    // console.log("H:",resultDistribution[highestIndex], "%");
-    var random = Math.random()
-    var threshold = 0
-    for (var i = 0; i < resultDistribution.length; i++) {
-      threshold += resultDistribution[i]
-      if(random < threshold) {
-        return i
-      }
-    }
-    return resultDistribution.length - 1
-  }
-
-  pickMax = function(result) {
-    var maxIndex = tf.argMax(result.arraySync()).arraySync()[0]
-    // console.log(maxIndex)
-    return maxIndex
-  }  
-
-  eGreedyPicker = function(result, epsilon) {
-    var random = Math.random()
-    if(random < epsilon) {
-      return Math.floor(Math.random() * result.shape[1])
-    } else {
-      return this.pickMax(result)
-    }
-  }
-
-  buildUpToNCardCombinations = function(n, cards) {
-    var combinations = []
-    if(cards.length == 0) {
-      return [[]]
-    } else if(n == 1) {
-      return cards.map(n => [n]).concat([[]])
-    } else if(n > cards.length) {
-      return [[...cards]].concat([[]])
-    } else {
-      for (var i = 0; i < cards.length; i++) {
-        var remainingCards = cards.slice(i + 1)
-        var remainingCombinations = this.buildUpToNCardCombinations(n - 1, remainingCards)
-        for (var j = 0; j < remainingCombinations.length; j++) {
-          var combination = [cards[i]]
-          combination = combination.concat(remainingCombinations[j])
-          combinations.push(combination)
-        }
-      }
-      combinations.push([])
-    }
-    return combinations
-  }
-
-  buildNCardCombinations = function(n, cards) {
-    var combinations = []
-    if(cards.length == 0) {
-      return []
-    } else if(n == 1) {
-      return cards.map(n => [n])
-    } else {
-      for (var i = 0; i < cards.length; i++) {
-        var remainingCards = cards.slice(i + 1)
-        var remainingCombinations = this.buildNCardCombinations(n - 1, remainingCards)
-        for (var j = 0; j < remainingCombinations.length; j++) {
-          var combination = [cards[i]]
-          combination = combination.concat(remainingCombinations[j])
-          combinations.push(combination)
-        }
-      }
-    }
-    return combinations
-  }
-  
-  buildNCardPermutations = function(n, remainingCards, previous = [[]]) {
-    var permutations = []    
-    if(n == 1){
-      previous.forEach(prev => {
-        remainingCards.forEach(card => {
-          permutations.push([...prev].concat([card]))
-        });
-      });
-    } else {
-      // For each remaining card, add it to all previous,
-      // remove card remainingCards
-      // call build with new set of previous, new remainingCards, and n-1 
-      // After each loop, add result to permutations
-      remainingCards.forEach(card => {
-        var newRemainingCards = remainingCards.slice(0)
-        newRemainingCards.splice(remainingCards.indexOf(card), 1)
-        var newPrevious = []
-        previous.forEach(prev => {
-          newPrevious.push([...prev, card])
-        });
-        var newPermutations = this.buildNCardPermutations(n-1, newRemainingCards, newPrevious)
-        permutations = permutations.concat(newPermutations)
-      });
-    }
-    return permutations
-  } 
 }
 
-class OneLayerPolicy extends BasePolicy{
+export const POLICY_TYPES = {
+  RL_PICK_CARD_AT_A_TIME: 'RL_PICK_CARD_AT_A_TIME',
+  RL_PICK_MULTIPLE_CARDS: 'RL_PICK_MULTIPLE_CARDS',
+  MANUAL_UPDATES: 'MANUAL_UPDATES'
+}
+
+class ManualUpdatesPolicy extends BasePolicy{
   constructor(encoder) {
     super()
     this.encoder = encoder
@@ -201,54 +72,6 @@ class OneLayerPolicy extends BasePolicy{
 
   peek = function(){
     return this.policyTensor.arraySync()
-  }
-}
-
-class BaseRLPolicy extends BasePolicy{
-  constructor(encoder, predictionPicker, learningRate = 0.1) {
-    super()
-    this.history = []
-    this.encoder = encoder
-    this.learningRate = learningRate;
-    this.predictionPicker = predictionPicker
-    this.lenUniqueCards = config.MAX_HERO_ALLY_ATTACK - config.MIN_HERO_ALLY_ATTACK + 1 
-    // bind this for combinationToColumnTensor
-    this.combinationToColumnTensor = this.combinationToColumnTensor.bind(this)
-    this.pickedActions = []
-  }
-
-  onMatchStart = function() {
-    this.pickedActions = [];
-    this.turns = 0;
-  }
-
-  debugUpdate = function (inputs, labels, previous = []) {
-    previous.push(this.peek())
-    if (previous.length > 1) {
-      var difference = tf.sub(previous[previous.length - 1], previous[0])
-      debug1(difference.arraySync())      
-    }    
-    return this.updateModel(inputs, labels)
-  }
-
-  updateModel = async function(inputs, labels) {
-    await this.model.fit(inputs, labels, {epochs: 1},);
-  }
-
-  // If combination doesn't have max number of cards, pad with 0 tensors
-  padCombinationTensor = function(combinationTensor) {
-    var maxLength = config.HERO_BUDGET
-    var tensorLength = combinationTensor.shape[0]
-    var padding = tf.zeros([maxLength - tensorLength, this.lenUniqueCards])
-    return combinationTensor.concat(padding)
-  }
-
-  combinationToColumnTensor = function(combination) {
-    
-  }
-
-  peek = function(){
-    return this.model.getWeights()[0].arraySync()
   }
 }
 
@@ -374,11 +197,4 @@ export class HandPermutationDensePolicy extends BaseRLPolicy{
     this.turns++;
     return pickedCombination
   }
-}
-
-export const POLICY_TYPES = {
-  RL_PICK_CARD_AT_A_TIME_GREEDY: 'RL_PICK_CARD_AT_A_TIME_GREEDY',
-  RL_GREEDY: 'RL_GREEDY',
-  RL_OVER_DIST: 'RL_OVER_DIST',
-  ONE_LAYER: 'ONE_LAYER'
 }
