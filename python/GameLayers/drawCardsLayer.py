@@ -12,3 +12,4 @@ class DrawFromDeckDrawCardsLayer:
         while(len(world.heroHand) < config.HAND_SIZE):
             world.heroHand.append(world.heroDeck.pop())
 
+

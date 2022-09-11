@@ -1,5 +1,5 @@
 import math
-from classes import Ally
+from models.classes import Ally
 import random
 import config
 
@@ -25,4 +25,5 @@ class World:
         for x in range(handSize):
             hand.append(deckCards.pop())
         return hand
+
 

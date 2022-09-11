@@ -12,3 +12,4 @@ class DiscardCardsExhaustAttackCardsLayer:
             if index != -1:
                 world.heroHand.pop(index)
 
+

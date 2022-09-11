@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
-import config
+from config import config
 from GameLayers.startGameLayer import DefaultStartGameLayer
 from GameLayers.pickPayingCardsLayers import DefaultPickPayingCardsLayer
 from GameLayers.pickAttackCardLayer import OneCardPickAttackCardsLayer
@@ -10,19 +10,19 @@ from GameLayers.bossAttackLayer import DamageOnlyBossAttackLayer
 from GameLayers.heroDefendLayer import DefaultHeroDefendLayer
 from GameLayers.bossEndTurnLayer import DefaultBossEndTurnLayer
 from GameLayers.exhaustAttackCardsLayer import DefaultExhaustAttackCardsLayer
-from GameLayers.playerEndTurnLayer import TurnBudgetUsedContinueLayer
+from GameLayers.playerEndTurnLayer import TurnBudgetUsedPlayerEndTurnLayer
 from GameLayers.drawCardsLayer import RebuildInitialHandDrawCardsLayer
 from GameLayers.bossDrawLayer import DefaultBossDrawLayer
-from policies.basePolicy import POLICY_TYPES
+from policies.policyTypes import POLICY_TYPES
 from models.game import Game
-from python.DeckBuilderElements.handBuilders import HAND_BUILDER_TYPES, BaseHandBuilder
-from python.DeckBuilderElements.deckBuilders import BaseDeckBuilder
+from DeckBuilderElements.handBuilders import HAND_BUILDER_TYPES, BaseHandBuilder
+from DeckBuilderElements.deckBuilders import BaseDeckBuilder
 from rulesets import BaseRuleset
-from gameScorer import ExpScorer
+from GameLayers.gameScorer import ExpScorer
 from cardEncoder import DamageAndCostEncoder
 from optimizers import BatchPassPickBestOptimizer
-from policyFactory import PolicyFactory
-from python.DeckBuilderElements.deckBuilders import DECK_BUILDER_TYPES
+from policies.policyFactory import PolicyFactory
+from DeckBuilderElements.deckBuilders import DECK_BUILDER_TYPES
 
 # explain this error: ValueError: source code string cannot contain null bytes
 # this error means that the string contains a null byte, which is not allowed in python
@@ -42,7 +42,7 @@ def GameInitializer (ruleset, deckBuilder, policy):
         OneCardPickAttackCardsLayer(policy),
         UnderCostBudgetAttackLayer(),
         DefaultExhaustAttackCardsLayer(),
-        TurnBudgetUsedContinueLayer(),
+        TurnBudgetUsedPlayerEndTurnLayer(),
         RebuildInitialHandDrawCardsLayer(world.heroHand),
         DefaultBossDrawLayer(),
         DamageOnlyBossAttackLayer(),
@@ -73,3 +73,4 @@ async def OptimizeOverLearningRates(learningRates):
         print('Ending Policy:', endPolicy)
         difference = tf.sub(endPolicy, startPolicy).arraySync()
         print('Policy Change:', difference)
+

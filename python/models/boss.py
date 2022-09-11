@@ -1,4 +1,4 @@
-from classes import Ally
+from models.classes import Ally
 
 class Boss(Ally):
   def __init__(self, name, text, health, attack, thwart):
@@ -28,4 +28,5 @@ class Boss(Ally):
 
   def villainPhase(self, hero, scheme, villainDeck):
       self.damageOnly(hero, scheme, villainDeck)
+
 

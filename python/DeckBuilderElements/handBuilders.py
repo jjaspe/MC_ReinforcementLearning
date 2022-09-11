@@ -3,10 +3,9 @@ from models.classes import Ally
 import config
 import random
 
-HAND_BUILDER_TYPES = {
-    'RANDOM': 'RandomHandBuilder',
-    'N_OF_EACH': 'NOfEachHandBuilder'
-}
+class HAND_BUILDER_TYPES:
+    RANDOM= 'RandomHandBuilder',
+    N_OF_EACH= 'NOfEachHandBuilder'
 
 class BaseHandBuilder:
     def makeHandBuilder(handBuilderType):
@@ -63,6 +62,7 @@ class DrawFromTopOfDeckHandBuilder(BaseHandBuilder):
                 hand.append(Ally('Ally Damage ' + str(0) + ' Cost: ' + str(config.COST), '', 0, 0, 0))
                 deck.append(card)
         return hand
+
 
 
 

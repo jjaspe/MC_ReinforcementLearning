@@ -1,4 +1,4 @@
-from classes import Ally
+from models.classes import Ally
 
 class Hero(Ally):
   def __init__(self, name, text, health, attack, thwart):
@@ -72,4 +72,5 @@ class AlterEgo(Ally):
 
   def playerPhase(self, boss, card, hero):
     hero.health = min(self.regen + hero.health, hero.maxHealth)
+
 

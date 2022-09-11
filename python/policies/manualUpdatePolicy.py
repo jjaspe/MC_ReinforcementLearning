@@ -1,5 +1,5 @@
 import config
-from basePolicy import BasePolicy
+from policies.basePolicy import BasePolicy
 import tensorflow as tf
 
 class ManualUpdatesPolicy(BasePolicy):

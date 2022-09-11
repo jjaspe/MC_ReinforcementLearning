@@ -5,3 +5,4 @@ class DefaultPickPayingCardsLayer:
         world.heroPayingCards = []
 
 
+

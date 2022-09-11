@@ -5,3 +5,4 @@ import config
 class DamageOnlyBossAttackLayer:
     def execute(self, world):
         world.hero.damageOnlyVillainPhase(world.boss.attack)
+

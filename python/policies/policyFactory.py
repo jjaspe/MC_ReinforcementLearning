@@ -1,8 +1,8 @@
 import config
-from policyTypes import POLICY_TYPES
-from manualUpdatePolicy import ManualUpdatesPolicy
-from pickHandPermutationPolicy import  PickHandPermutationPolicy
-from pickCardAtATimePolicy import PickCardAtATimeDensePolicy
+from policies.policyTypes import POLICY_TYPES
+from policies.manualUpdatePolicy import ManualUpdatesPolicy
+from policies.pickHandPermutationPolicy import  PickHandPermutationPolicy
+from policies.pickCardAtATimePolicy import PickCardAtATimeDensePolicy
 
 
 class PolicyFactory:

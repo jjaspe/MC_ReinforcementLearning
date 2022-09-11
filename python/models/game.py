@@ -1,129 +1,62 @@
-# import { print, config, debug } from '../config.js'
+import config
 
-# function drawCard(hand, deck, handSize) {
-#   if (deck.length < handSize) {
-#     deck = makeDeck(40)
-#     print('rebuilding deck')
-#   }
-#   for (var x = hand.length; x < handSize; x++) {
-#     hand.push(deck.pop())
-#   }
-#   return deck
-# }
+def isDead(unit):
+    if unit.health <= 0:
+        return True
+    else:
+        return False
 
-# function isdead(unit) {
-#   if (unit.health <= 0) {
-#     return true
-#   }
-#   else
-#     return false
-# }
+class Game:
+    def __init__(self, world, layers):
+        self.world = world
+        self.layers = layers
+        self.startGameLayer = layers.pop(0)
+        self.payForCardsLayer = layers.pop(0)
+        self.pickAttackCardLayer = layers.pop(0)
+        self.attackLayer = layers.pop(0)
+        self.exhaustCardLayer = layers.pop(0)
+        self.playerContinueTurnLayer = layers.pop(0)
+        self.rebuildHandLayer = layers.pop(0)
+        self.bossDrawLayer = layers.pop(0)
+        self.bossAttackLayer = layers.pop(0)
+        self.heroDefendLayer = layers.pop(0)
+        self.bossEndTurnLayer = layers.pop(0)
 
-# function payForCards(playedCard, hand) {
-#   hand.splice(0, playedCard.cost)
-# }
+    def start(self):
+        return self.playWithLayers()
 
-# class Game {
-#   constructor(world, layers) {
-#     this.world = world;
-#     this.layers = layers;
-#     this.startGameLayer = layers.shift();
-#     this.payForCardsLayer = layers.shift();
-#     this.pickAttackCardLayer = layers.shift();
-#     this.attackLayer = layers.shift();
-#     this.exhaustCardLayer = layers.shift();
-#     this.playerContinueTurnLayer = layers.shift();
-#     this.rebuildHandLayer = layers.shift();
-#     this.bossDrawLayer = layers.shift();
-#     this.bossAttackLayer = layers.shift();
-#     this.heroDefendLayer = layers.shift();
-#     this.bossEndTurnLayer = layers.shift();
-#   }
-
-#   start = function() {
-#     return this.playWithLayers()
-#   }
-
-#   playWithLayers = function() {
-#     var world = this.world;
-#     var hero = world.hero;
-#     var boss = world.boss;
-#     var gameEnd = false
-#     var victory = false
-#     var scheme = 0
-#     var handNumber = 0
-#     this.startGameLayer.execute(world);
-#     while(!gameEnd){
-#       print('Playing hand ' + handNumber++)
-#       while(this.world.isPlayerTurn){
-#         this.payForCardsLayer.execute(world);
-#         this.pickAttackCardLayer.execute(world);
-#         this.attackLayer.execute(world);
-#         this.playerContinueTurnLayer.execute(world);
-#         if(isdead(boss)) {
-#           gameEnd = true
-#           victory = true
-#           break;
-#         }
-#       }      
-#       if(!gameEnd){
-#         // play the rest of the layers
-#         while(!this.world.isPlayerTurn){
-#           this.rebuildHandLayer.execute(world);
-#           this.bossDrawLayer.execute(world);
-#           this.bossAttackLayer.execute(world);
-#           this.heroDefendLayer.execute(world);
-#           this.bossEndTurnLayer.execute(world);
-#           if (isdead(hero)) {
-#             gameEnd = true
-#             break
-#           }
-#         }
-#       }   
-#     }
-#     print(victory ? 'Victory' : 'Defeat')
-#     print('Hero:', hero.health, '   ', 'Boss:', boss.health)   
-#     return victory
-#   }
-
-#   playWithRuleset = function() {
-#     var hero = this.world.hero;
-#     var boss = this.world.boss;
-#     var heroDeck = this.world.heroDeck;
-#     var bossDeck = this.world.bossDeck;
-#     var hand = this.world.heroHand;
-#     var gameEnd = false
-#     var victory = false
-#     var scheme = 0
-#     var handNumber = 0
-#     while (gameEnd == false) {
-#       print('Playing hand ' + handNumber++)
-#       hero.playerPhase(this.world, hand)
-#       if (isdead(boss)) {
-#         print('Victory')
-#         print('Hero:', hero.health, '   ', 'Boss:', boss.health)
-#         gameEnd = true
-#         victory = true
-#       }
-#       else {
-#         //hero.villainPhase(boss.getDamage(enemyDeck))
-#         boss.villainPhase(hero, scheme, bossDeck)
-#         if (isdead(hero)) {
-#           gameEnd = true
-#           print('Defeat')
-#           print('Hero:', hero.health, '   ', 'Boss:', boss.health)
-#         }
-#         // else {
-#         //   heroDeck = drawCard(hand, heroDeck, 5)
-#         //   bossDeck = drawCard(enemyHand, bossDeck, 1)
-#         // }
-#       }
-#     }
-#     return victory
-#   }
-# }
-
-# export { Game }
-
-
-# the following is the above commented javascript code converted to python
+    def playWithLayers(self):
+        world = self.world
+        hero = world.hero
+        boss = world.boss
+        gameEnd = False
+        victory = False
+        scheme = 0
+        handNumber = 0
+        self.startGameLayer.execute(world)
+        while not gameEnd:
+            print('Playing hand ' + str(handNumber))
+            handNumber += 1
+            while world.isPlayerTurn:
+                self.payForCardsLayer.execute(world)
+                self.pickAttackCardLayer.execute(world)
+                self.attackLayer.execute(world)
+                self.playerContinueTurnLayer.execute(world)
+                if self.isdead(boss):
+                    gameEnd = True
+                    victory = True
+                    break
+            if not gameEnd:
+                # play the rest of the layers
+                while not world.isPlayerTurn:
+                    self.rebuildHandLayer.execute(world)
+                    self.bossDrawLayer.execute(world)
+                    self.bossAttackLayer.execute(world)
+                    self.heroDefendLayer.execute(world)
+                    self.bossEndTurnLayer.execute(world)
+                    if self.isdead(hero):
+                        gameEnd = True
+                        break
+        print('Victory' if victory else 'Defeat')
+        print('Hero:', hero.health, '   ', 'Boss:', boss.health)
+        return victory
