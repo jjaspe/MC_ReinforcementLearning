@@ -60,7 +60,7 @@ class DrawFromTopOfDeckHandBuilder(BaseHandBuilder):
             if card.attack >= self.minDamage and card.attack <= self.maxDamage:
                 hand.append(card)
             else:
-                hand.append(Ally('Ally Damage ' + str(i) + ' Cost: ' + str(config.COST), '', 0, i, 0))
+                hand.append(Ally('Ally Damage ' + str(0) + ' Cost: ' + str(config.COST), '', 0, 0, 0))
                 deck.append(card)
         return hand
 
