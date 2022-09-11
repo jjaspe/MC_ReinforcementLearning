@@ -1,4 +1,4 @@
-import config
+from config import config
 
 class DefaultStartGameLayer:
     def execute(self, world):

@@ -1,4 +1,4 @@
-import config
+from config import config
 from models.world import World
 
 class BaseRuleset:

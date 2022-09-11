@@ -1,7 +1,8 @@
+import math
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
-from config import config
+from config import config, log, debug
 from GameLayers.startGameLayer import DefaultStartGameLayer
 from GameLayers.pickPayingCardsLayers import DefaultPickPayingCardsLayer
 from GameLayers.pickAttackCardLayer import OneCardPickAttackCardsLayer
@@ -22,7 +23,7 @@ from GameLayers.gameScorer import ExpScorer
 from cardEncoder import DamageAndCostEncoder
 from optimizers import BatchPassPickBestOptimizer
 from policies.policyFactory import PolicyFactory
-from DeckBuilderElements.deckBuilders import DECK_BUILDER_TYPES
+from DeckBuilderElements.deckBuilderFactory import DeckBuilderFactory, DECK_BUILDER_TYPES
 
 # explain this error: ValueError: source code string cannot contain null bytes
 # this error means that the string contains a null byte, which is not allowed in python
@@ -52,25 +53,34 @@ def GameInitializer (ruleset, deckBuilder, policy):
     game = Game(world, layers)
     return game
 
-async def OptimizeOverLearningRates(learningRates):
+def OptimizeOverLearningRates(learningRates):
     results = []
     for i in range(len(learningRates)):
         handBuilder = BaseHandBuilder.makeHandBuilder(HAND_BUILDER_TYPES.N_OF_EACH)
-        deckBuilder = BaseDeckBuilder.makeDeckBuilder(deckBuilderType,handBuilder)
+        deckBuilder = DeckBuilderFactory.makeDeckBuilder(deckBuilderType,handBuilder)
         encoder = DamageAndCostEncoder(deckBuilder.cards)
         policy = PolicyFactory.makePolicy(policyType, encoder, learningRates[i])
         policy.predictionPicker = lambda n : policy.pickMax(n)
         ruleset = BaseRuleset(policy, deckBuilder)
-        initializer = lambda _ : GameInitializer(ruleset, deckBuilder, policy)
+        initializer = lambda  : GameInitializer(ruleset, deckBuilder, policy)
         scorer = ExpScorer(1, 1)
         optimizer = BatchPassPickBestOptimizer(initializer, policy, scorer, config.EXPLORE_BATCH_SIZE)
 
         startPolicy = policy.peek()
-        print('Starting Policy:', startPolicy)
-        scores = await optimizer.optimize(epochs)
+        log('Starting Policy:', startPolicy)
+        scores = optimizer.optimize(epochs)
         results.append({'learningRate': learningRates[i], scores: scores})
         endPolicy = policy.peek()
-        print('Ending Policy:', endPolicy)
+        log('Ending Policy:', endPolicy)
         difference = tf.sub(endPolicy, startPolicy).arraySync()
-        print('Policy Change:', difference)
+        log('Policy Change:', difference)
+
+cardsPerType = config.DECK_SIZE/(config.MAX_HERO_ALLY_ATTACK+1)
+healthFrom2s = 2*cardsPerType
+turnsFrom2s = math.floor(healthFrom2s/4)
+otherTurns = (config.BOSS_HEALTH - healthFrom2s)/3
+optScore = config.SCORE_MULTIPLIER * (config.HERO_HEALTH - config.BOSS_ATTACK*(turnsFrom2s+otherTurns))
+log('Opt Score:', optScore)
+
+OptimizeOverLearningRates(learningRates)
 

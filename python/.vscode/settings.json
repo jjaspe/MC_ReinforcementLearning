@@ -5,11 +5,7 @@
     },
     "debug.javascript.usePreview": false,
     "python.analysis.extraPaths": [
-        "./python/policies",
-        "./python",
-        "./python/GameLayers"
+        "./policies",
+        "./GameLayers"
     ],
-    "files.exclude": {
-        "**/python": true
-    },
 }

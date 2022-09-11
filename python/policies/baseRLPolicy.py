@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-import config
+from config import config
 
 class BaseRLPolicy:
     def __init__(self, encoder, predictionPicker, learningRate = 0.1):
@@ -9,8 +9,6 @@ class BaseRLPolicy:
         self.learningRate = learningRate
         self.predictionPicker = predictionPicker
         self.lenUniqueCards = config.MAX_HERO_ALLY_ATTACK - config.MIN_HERO_ALLY_ATTACK + 1 
-        # bind this for combinationToColumnTensor
-        self.combinationToColumnTensor = self.combinationToColumnTensor.bind(self)
         self.pickedActions = []
 
     def onMatchStart(self):
@@ -37,7 +35,7 @@ class BaseRLPolicy:
         pass
 
     def peek(self):
-        return self.model.get_weights()[0].numpy()
+        return self.model.get_weights()[0]
 
 
 

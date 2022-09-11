@@ -5,16 +5,14 @@ import config
 class BaseEncoder:
     def __init__(self, cards):
         self.cards = cards
-        self.getOneHotEncodedCardByIndex = self.getOneHotEncodedCardByIndex.bind(self)
 
     def getOneHotEncodedCardByIndex(self, index):
         return self.cardMatrix.arraySync()[index]
 
     def buildCardMatrix(self, uniqueCards):
-        indeces = uniqueCards.map(lambda _, i: i)
-        iTensor = tf.tensor1d(indeces, 'int32')
-        oh = tf.oneHot(iTensor, uniqueCards.length)
-        return oh
+        indeces = range(len(uniqueCards))
+        matrix = tf.one_hot(indeces, len(uniqueCards))
+        return matrix
 
     def getOneHotEncodedCombinationByIndeces(self, indeces):
         matrix = self.cardMatrix.arraySync()
@@ -28,17 +26,14 @@ class BaseEncoder:
 class DamageEncoder(BaseEncoder):
     def __init__(self, cards):
         super().__init__(cards)
-        self.uniqueCards = self.getDistinctCardsByDamage(cards)
-        self.inputUnits = self.uniqueCards.length
+        self.uniqueCards = self.getDistinctCardsByAttack(cards)
+        self.inputUnits = len(self.uniqueCards)
         self.cardMatrix = self.buildCardMatrix(self.uniqueCards)
 
-    def getDistinctCardsByDamage(self, cards):
-        damages = []
-        uniqueCards = []
-        for i in range(0, len(cards)):
-            if damages.indexOf(cards[i].attack) == -1:
-                damages.push(cards[i].attack)
-                uniqueCards.push(cards[i])
+    def getDistinctCardsByAttack(self, cards):
+        attacks = [n.attack for n in cards]
+        uniqueAttacks = list(set(attacks))
+        uniqueCards = [next((c for c in cards if c.attack == n), None) for n in uniqueAttacks]
         return uniqueCards
 
     def oneHotEncodeCards(self, cards):

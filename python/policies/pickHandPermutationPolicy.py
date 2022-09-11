@@ -1,5 +1,5 @@
 import tensorflow as tf
-import config
+from config import config
 from policies.baseRLPolicy import BaseRLPolicy
 
 class PickHandPermutationPolicy(BaseRLPolicy):
@@ -14,7 +14,6 @@ class PickHandPermutationPolicy(BaseRLPolicy):
             self.model.add(tf.keras.layers.Dense(config.HIDDEN_UNITS, input_shape=(config.HIDDEN_UNITS,), use_bias=True))
         self.model.add(tf.keras.layers.Dense(1, use_bias=True))
         self.model.compile(loss='meanSquaredError', optimizer=tf.keras.optimizers.Adam(self.learningRate))
-        self.oneHotCombinationToColumnTensor = self.oneHotCombinationToColumnTensor.bind(self)
 
     def update(self, score):
         avgScore = score / self.turns

@@ -1,17 +1,17 @@
 import tensorflow as tf
 from models.classes import Ally
-import config
+from config import config
 import random
 
 class HAND_BUILDER_TYPES:
-    RANDOM= 'RandomHandBuilder',
+    RANDOM= 'RandomHandBuilder'
     N_OF_EACH= 'NOfEachHandBuilder'
 
 class BaseHandBuilder:
     def makeHandBuilder(handBuilderType):
-        if handBuilderType == HAND_BUILDER_TYPES['RANDOM']:
+        if handBuilderType == HAND_BUILDER_TYPES.RANDOM:
             return RandomHandBuilder(config.MIN_HERO_ALLY_ATTACK, config.MAX_HERO_ALLY_ATTACK)
-        elif handBuilderType == HAND_BUILDER_TYPES['N_OF_EACH']:
+        elif handBuilderType == HAND_BUILDER_TYPES.N_OF_EACH:
             return NOfEachHandBuilder(config.MIN_HERO_ALLY_ATTACK, config.MAX_HERO_ALLY_ATTACK)
         else:
             raise Exception('Invalid hand builder type')

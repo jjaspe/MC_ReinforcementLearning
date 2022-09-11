@@ -1,4 +1,4 @@
-import config
+from config import config
 from policies.policyTypes import POLICY_TYPES
 from policies.manualUpdatePolicy import ManualUpdatesPolicy
 from policies.pickHandPermutationPolicy import  PickHandPermutationPolicy
@@ -13,4 +13,4 @@ class PolicyFactory:
             POLICY_TYPES.RL_PICK_MULTIPLE_CARDS: PickHandPermutationPolicy(encoder, None, config.HIDDEN_LAYERS, learningRate),
             POLICY_TYPES.RL_PICK_CARD_AT_A_TIME: PickCardAtATimeDensePolicy(encoder, None, config.HIDDEN_LAYERS, learningRate)
         }
-        return switcher.get(policyType, "Invalid policy type")
+        return switcher.get(policyType, "Invalid policy type") 

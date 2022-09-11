@@ -1,14 +1,16 @@
-import config
+import random
+from config import config
 from policies.basePolicy import BasePolicy
 import tensorflow as tf
 
 class ManualUpdatesPolicy(BasePolicy):
-    def __init__(self, encoder):
+    def __init__(self, encoder, learningRate):
         super().__init__()
         self.encoder = encoder
-        self.learningRate = 0.1
+        self.learningRate = learningRate
         lenUniqueCards = config.MAX_HERO_ALLY_ATTACK - config.MIN_HERO_ALLY_ATTACK + 1
-        self.policyTensor = tf.randomUniform([1, lenUniqueCards], 0, 1)
+        # initialize policy tensor to random values
+        self.policy = tf.random.uniform([lenUniqueCards, lenUniqueCards], 0, 1, 'float32')
 
     def onMatchStart(self):
         self.cardIndecesPicked = []
@@ -22,14 +24,14 @@ class ManualUpdatesPolicy(BasePolicy):
 
     def updatePolicyMatrix(self, policyTensor):
         policyTensor = policyTensor.mul(self.learningRate)
-        self.policyTensor = self.policyTensor.add(policyTensor)
+        self.policy = self.policy.add(policyTensor)
 
     def pickCard(self, hand):
         #run hand through policy network to find best one
         #turn hand to matrix then tensor
         oneHotHand = self.encoder.oneHotEncodeCards(hand)
         handTensor = tf.tensor(oneHotHand, [oneHotHand.length, oneHotHand[0].length])
-        result = handTensor.matMul(self.policyTensor, False, True)
+        result = handTensor.matMul(self.policy, False, True)
         maxIndexInHand = self.pickIndexOverDistribution(result)
         indexInUniqueCards = self.encoder.getIndexOfCard(hand[maxIndexInHand])
         self.cardIndecesPicked.push(indexInUniqueCards)
@@ -41,4 +43,4 @@ class ManualUpdatesPolicy(BasePolicy):
         return cards
 
     def peek(self):
-        return self.policyTensor.arraySync()
+        return self.policy.arraySync()

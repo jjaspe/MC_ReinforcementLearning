@@ -1,5 +1,6 @@
 import math
-import config
+from DeckBuilderElements.postBuilders import DefaultPostBuilder
+from config import config
 from models.classes import Ally
 from models.hero import Hero
 from models.boss import Boss
@@ -7,7 +8,7 @@ from DeckBuilderElements.handBuilders import BaseHandBuilder, HAND_BUILDER_TYPES
 
 class BaseDeckBuilder:
     def __init__(self):
-        pass
+        self.postBuilder = DefaultPostBuilder()
 
     def buildCards(self):
         pass
@@ -23,10 +24,13 @@ class BaseDeckBuilder:
         return self.buildFullDeck(cards, deckSize)
 
     def makeHero(self):
-        return Hero('Hero', '', config.HERO_HEALTH, 0, 0, config.HERO_ATTACK, None)
+        return Hero('Hero', '', config.HERO_HEALTH, config.HERO_ATTACK, 0)
 
     def makeBoss(self):
         return Boss('Boss', '', config.BOSS_HEALTH, config.BOSS_ATTACK, config.BOSS_SCHEME)
+
+    def buildHand(self, deck, handSize):
+        self.handBuilder.buildHand(deck, handSize)
 
 class DamageOnlyDeckBuilder(BaseDeckBuilder):
     def __init__(self, minDamage, maxDamage):
@@ -76,11 +80,12 @@ class DamageAndSquaredCostDeckBuilder(BaseDeckBuilder):
         return cards
 
 class DamageAndCustomCostDeckBuilder(BaseDeckBuilder):
-    def __init__(self, minDamage, maxDamage, costFunction):
+    def __init__(self, minDamage, maxDamage, minCost, maxCost):
         super().__init__()
         self.minDamage = minDamage
         self.maxDamage = maxDamage
-        self.costFunction = costFunction
+        self.minCost = minCost
+        self.maxCost = maxCost
 
     def buildCards(self):
         cards = []
@@ -151,12 +156,6 @@ class NormalizedDamageAndSquaredCostDeckBuilder(BaseDeckBuilder):
     def makeBoss(self):
         return Boss('Boss', '', config.BOSS_HEALTH, config.BOSS_ATTACK/self.scale, config.BOSS_SCHEME)
 
-class DECK_BUILDER_TYPES:
-    DAMAGE_ONLY= DamageOnlyDeckBuilder,
-    DAMAGE_AND_COST= DamageAndCostDeckBuilder,
-    DAMAGE_AND_SQUARE_COST = DamageAndSquaredCostDeckBuilder,
-    DAMAGE_AND_CUSTOM_COST = DamageAndCustomCostDeckBuilder,
-    NORMALIZED_DAMAGE_AND_SQUARE_COST = NormalizedDamageAndSquaredCostDeckBuilder
 
 
 
