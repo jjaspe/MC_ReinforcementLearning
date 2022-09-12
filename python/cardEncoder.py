@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-from config import config
+from config import config, log
 
 class BaseEncoder:
     def __init__(self, cards):
@@ -27,25 +27,24 @@ class DamageEncoder(BaseEncoder):
     def __init__(self, cards):
         super().__init__(cards)
         self.uniqueCards = self.getDistinctCardsByAttack(cards)
-        self.card_attacks = [n.attack for n in self.uniqueCards]
+        self.unique_attacks = list(map(lambda n: n.attack, self.uniqueCards))
         self.inputUnits = len(self.uniqueCards)
         self.cardMatrix = self.buildCardMatrix(self.uniqueCards)
 
     def getDistinctCardsByAttack(self, cards):
-        uniqueAttacks = list(set(self.card_attacks))
+        uniqueAttacks = list(set(map(lambda n: n.attack, cards)))
         uniqueCards = [next((c for c in cards if c.attack == n), None) for n in uniqueAttacks]
         return uniqueCards
 
     def oneHotEncodeCards(self, cards):
-        one_hots = [list(map(lambda n: 1 if n == card.attack else 0, self.card_attacks)) for card in cards]
+        one_hots = [list(map(lambda n: float(1) if n == card.attack else float(0), self.unique_attacks)) for card in cards]
         return one_hots
 
     def getIndexOfCard(self, card):
-        index = self.card_attacks.indexOf(card.attack)
-        return index
+        return self.unique_attacks.index(card.attack)
 
     def getIndecesOfCards(self, cards):
-        return cards.map(lambda n: self.getIndexOfCard(n))
+        return map(lambda n: self.getIndexOfCard(n), cards)
 
     def encodeCard(self, card, world):
         return self.oneHotEncodeCards([card])[0]

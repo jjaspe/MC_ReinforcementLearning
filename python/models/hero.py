@@ -29,7 +29,7 @@ class Hero(Ally):
   def attackAction(self, boss, card):
     damage = card.attack
     boss.health = boss.health - damage
-    #print('Hit boss for ' + damage + ' damage')
+    #log('Hit boss for ' + damage + ' damage')
     return boss.health
 
   def takeDamage(self, damage):

@@ -1,5 +1,5 @@
 from DeckBuilderElements.deckBuilders import *
-from config import config
+from config import config, log
 
 class DECK_BUILDER_TYPES:
     DAMAGE_ONLY= DamageOnlyDeckBuilder

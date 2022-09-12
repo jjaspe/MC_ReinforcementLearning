@@ -46,7 +46,7 @@ class BasePolicy:
         return len(probs) - 1
 
     def pickMax(self, result):
-        maxIndex = np.argmax(result.numpy())
+        maxIndex = np.argmax(result)
         return maxIndex
 
     def eGreedyPicker(self, result, epsilon):

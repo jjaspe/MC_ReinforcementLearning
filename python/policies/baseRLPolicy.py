@@ -1,9 +1,11 @@
 import tensorflow as tf
 import numpy as np
-from config import config
+from policies.basePolicy import BasePolicy
+from config import config, log
 
-class BaseRLPolicy:
+class BaseRLPolicy(BasePolicy):
     def __init__(self, encoder, predictionPicker, learningRate = 0.1):
+        super().__init__()
         self.history = []
         self.encoder = encoder
         self.learningRate = learningRate

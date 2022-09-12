@@ -55,7 +55,7 @@ class PickCardAtATimePreferencePolicy(BaseRLPolicy):
         # Save picked Card as index array
         self.pickedActions.push(inputMatrix.arraySync()[pickedCardIndex])
         self.pastPredictionProbs.push(predictions.arraySync())
-        # print({damage:pickedCard.attack, cost:pickedCard.cost})
+        # log({damage:pickedCard.attack, cost:pickedCard.cost})
 
         # var newHistory = pickedCard.attack
         # this.history.push(newHistory)

@@ -1,7 +1,7 @@
 import tensorflow as tf
 from policies.basePolicy import BasePolicy
 from policies.baseRLPolicy import BaseRLPolicy
-from config import config
+from config import config, log
 
 class PickCardAtATimeDensePolicy(BaseRLPolicy):
     def __init__(self, encoder, predictionPicker, hiddenLayers = 0, learningRate = 0.1):
@@ -15,13 +15,13 @@ class PickCardAtATimeDensePolicy(BaseRLPolicy):
         self.model.add(tf.keras.layers.Dense(1, use_bias = True))
         self.model.compile(loss = 'meanSquaredError', optimizer = tf.keras.optimizers.Adam(self.learningRate))
     
-    async def update(self, score):
+    def update(self, score):
         avgScore = score / self.turns
         inputMatrix = tf.constant(self.pickedActions, shape = [len(self.pickedActions), self.inputUnits])
         labels = tf.constant([avgScore for n in self.pickedActions],
          shape = [len(self.pickedActions), 1],
          dtype = tf.float32)
-        await self.updateModel(inputMatrix, labels)
+        self.updateModel(inputMatrix, labels)
     
     def getUniqueCards(self, hand):
         uniqueCards = []
@@ -40,16 +40,15 @@ class PickCardAtATimeDensePolicy(BaseRLPolicy):
         encoded_cards = [self.encoder.encodeCard(n, world) for n in uniqueCards]
         inputTensors = [self.encodedCardToColumnTensor(n, self.inputUnits) for n in encoded_cards]
         # Build matrix of permutations
-        inputMatrix = tf.concat(inputTensors, 1).transpose()
+        inputMatrix = tf.transpose(tf.concat(inputTensors, 1))
         # Run each card through model to get probability of picking each card
         predictions = self.model.predict(inputMatrix)
-        testPred = predictions.arraySync()
         testPeek = self.peek()
         pickedCardIndex = self.predictionPicker(predictions)
         pickedCard = uniqueCards[pickedCardIndex]
         # Save picked Card as index array
-        self.pickedActions.append(inputMatrix.arraySync()[pickedCardIndex])
-        print({'damage':pickedCard.attack, 'cost':pickedCard.cost})
+        self.pickedActions.append(inputMatrix[pickedCardIndex])
+        log({'damage':pickedCard.attack, 'cost':pickedCard.cost})
         # var newHistory = pickedCard.attack
         # self.history.push(newHistory)
         self.turns += 1

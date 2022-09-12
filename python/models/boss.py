@@ -21,7 +21,7 @@ class Boss(Ally):
           scheme.threat = scheme.threat + self.getThreat(villainDeck)
       else:
           #do damage to hero
-          print('do damage to hero')
+          log('do damage to hero')
 
   def damageOnly(self, hero, scheme, villainDeck):
       hero.villainPhase(self.attack)

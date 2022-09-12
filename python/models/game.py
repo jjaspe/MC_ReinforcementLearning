@@ -1,6 +1,6 @@
-import config
+from config import config, log
 
-def isDead(unit):
+def is_dead(unit):
     if unit.health <= 0:
         return True
     else:
@@ -35,14 +35,14 @@ class Game:
         handNumber = 0
         self.startGameLayer.execute(world)
         while not gameEnd:
-            print('Playing hand ' + str(handNumber))
+            log('Playing hand ' + str(handNumber))
             handNumber += 1
             while world.isPlayerTurn:
                 self.payForCardsLayer.execute(world)
                 self.pickAttackCardLayer.execute(world)
                 self.attackLayer.execute(world)
                 self.playerContinueTurnLayer.execute(world)
-                if self.isdead(boss):
+                if is_dead(boss):
                     gameEnd = True
                     victory = True
                     break
@@ -54,9 +54,9 @@ class Game:
                     self.bossAttackLayer.execute(world)
                     self.heroDefendLayer.execute(world)
                     self.bossEndTurnLayer.execute(world)
-                    if self.isdead(hero):
+                    if is_dead(hero):
                         gameEnd = True
                         break
-        print('Victory' if victory else 'Defeat')
-        print('Hero:', hero.health, '   ', 'Boss:', boss.health)
+        log('Victory' if victory else 'Defeat')
+        log('Hero:', hero.health, '   ', 'Boss:', boss.health)
         return victory

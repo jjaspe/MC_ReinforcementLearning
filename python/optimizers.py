@@ -1,4 +1,5 @@
 import tensorflow as tf
+from config import log
 
 class SinglePassOptimizer:
     def __init__(self, gameInitializer, policy, scorer):
@@ -17,7 +18,7 @@ class SinglePassOptimizer:
             isVictory = game.start()
             victories += (1 if isVictory else 0)
             score = self.scorer.scoreGame(isVictory, game.world)
-            print('Score:', score)
+            log('Score:', score)
             scores.append(score)
             self.policy.update(score)
             history.append(100 * victories / (x + 1))
@@ -36,7 +37,7 @@ class BatchPassPickBestOptimizer:
         history = []
         scores = []
         for x in range(epochs):
-            print('Starting epoch:', x)
+            log('Starting epoch:', x)
             bestBatchScore = -float('inf')
             batchPickedActions = []
             for i in range(self.batchSize):
@@ -48,7 +49,7 @@ class BatchPassPickBestOptimizer:
                 if score > bestBatchScore:
                     bestBatchScore = score
                     batchPickedActions = self.policy.pickedActions
-            print('Score:', bestBatchScore)
+            log('Score:', bestBatchScore)
             scores.append(bestBatchScore)
             self.policy.update(bestBatchScore)
             history.append(100 * victories / (x + 1))
@@ -80,7 +81,7 @@ class BatchPassOptimizer:
                 self.policy.updatePolicyMatrix(tf.tensor1d(update, 'float32'))
             history.append(100 * victories / self.batches)
             totalVictories += victories
-        print(totalVictories)
+        log(totalVictories)
         return history
 
 

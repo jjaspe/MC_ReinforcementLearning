@@ -17,7 +17,7 @@ class Game:
     # def drawCard(self, hand, deck, handSize):
     #     if len(deck) < handSize:
     #         deck = makeDeck(40)
-    #         print('rebuilding deck')
+    #         log('rebuilding deck')
     #     for x in range(len(hand), handSize):
     #         hand.append(deck.pop())
     #     return deck
@@ -44,7 +44,7 @@ class Game:
         handNumber = 0
         self.startGameLayer.execute(world)
         while not gameEnd:
-            print('Playing hand ' + str(handNumber))
+            log('Playing hand ' + str(handNumber))
             handNumber += 1
             while world.isPlayerTurn:
                 self.payForCardsLayer.execute(world)
@@ -66,8 +66,8 @@ class Game:
                     if self.isdead(hero):
                         gameEnd = True
                         break
-        print('Victory' if victory else 'Defeat')
-        print('Hero:', hero.health, '   ', 'Boss:', boss.health)
+        log('Victory' if victory else 'Defeat')
+        log('Hero:', hero.health, '   ', 'Boss:', boss.health)
         return victory
 
 if __name__ == '__main__':

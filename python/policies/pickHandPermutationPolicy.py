@@ -1,5 +1,5 @@
 import tensorflow as tf
-from config import config
+from config import config, log
 from policies.baseRLPolicy import BaseRLPolicy
 
 class PickHandPermutationPolicy(BaseRLPolicy):
@@ -48,7 +48,7 @@ class PickHandPermutationPolicy(BaseRLPolicy):
         # var test = inputMatrix.arraySync()
         # Save actions for update
         self.pickedActions.append(inputMatrix.numpy()[pickedCombinationIndex])
-        print(pickedCombination)
+        log(pickedCombination)
         newHistory = [n.attack for n in pickedCombination]
         self.history.append(newHistory)
         self.turns += 1

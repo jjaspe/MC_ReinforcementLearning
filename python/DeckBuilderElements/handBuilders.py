@@ -1,6 +1,6 @@
 import tensorflow as tf
 from models.classes import Ally
-from config import config
+from config import config, log
 import random
 
 class HAND_BUILDER_TYPES:

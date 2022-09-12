@@ -2,7 +2,7 @@ import math
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
-from config import config, log, debug
+from config import config, log, log, debug
 from GameLayers.startGameLayer import DefaultStartGameLayer
 from GameLayers.pickPayingCardsLayers import DefaultPickPayingCardsLayer
 from GameLayers.pickAttackCardLayer import OneCardPickAttackCardsLayer
@@ -17,7 +17,6 @@ from GameLayers.bossDrawLayer import DefaultBossDrawLayer
 from policies.policyTypes import POLICY_TYPES
 from models.game import Game
 from DeckBuilderElements.handBuilders import HAND_BUILDER_TYPES, BaseHandBuilder
-from DeckBuilderElements.deckBuilders import BaseDeckBuilder
 from rulesets import BaseRuleset
 from GameLayers.gameScorer import ExpScorer
 from cardEncoder import DamageAndCostEncoder

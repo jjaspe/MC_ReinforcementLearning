@@ -1,6 +1,6 @@
 import math
 from DeckBuilderElements.postBuilders import DefaultPostBuilder
-from config import config
+from config import config, log
 from models.classes import Ally
 from models.hero import Hero
 from models.boss import Boss

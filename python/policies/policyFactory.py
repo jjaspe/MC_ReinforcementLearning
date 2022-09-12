@@ -1,4 +1,4 @@
-from config import config
+from config import config, log
 from policies.policyTypes import POLICY_TYPES
 from policies.manualUpdatePolicy import ManualUpdatesPolicy
 from policies.pickHandPermutationPolicy import  PickHandPermutationPolicy

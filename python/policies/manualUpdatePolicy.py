@@ -1,5 +1,5 @@
 import random
-from config import config
+from config import config, log
 from policies.basePolicy import BasePolicy
 import tensorflow as tf
 
