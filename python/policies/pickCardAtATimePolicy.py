@@ -37,8 +37,8 @@ class PickCardAtATimeDensePolicy(BaseRLPolicy):
     def pickCards(self, hand, world):
         # encode cards into tensors
         uniqueCards = self.getUniqueCards(hand)
-        inputTensors = [self.encodedCardToColumnTensor(self.encoder.encodeCard(n, world), self.inputUnits)
-            for n in uniqueCards]
+        encoded_cards = [self.encoder.encodeCard(n, world) for n in uniqueCards]
+        inputTensors = [self.encodedCardToColumnTensor(n, self.inputUnits) for n in encoded_cards]
         # Build matrix of permutations
         inputMatrix = tf.concat(inputTensors, 1).transpose()
         # Run each card through model to get probability of picking each card

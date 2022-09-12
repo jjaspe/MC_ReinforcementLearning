@@ -30,7 +30,7 @@ class BaseDeckBuilder:
         return Boss('Boss', '', config.BOSS_HEALTH, config.BOSS_ATTACK, config.BOSS_SCHEME)
 
     def buildHand(self, deck, handSize):
-        self.handBuilder.buildHand(deck, handSize)
+        return self.handBuilder.buildHand(deck, handSize)
 
 class DamageOnlyDeckBuilder(BaseDeckBuilder):
     def __init__(self, minDamage, maxDamage):
