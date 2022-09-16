@@ -13,13 +13,15 @@ class PickCardAtATimeDensePolicy(BaseRLPolicy):
         self.model.initialWeights = tf.random.uniform([self.inputUnits, 1], 0, 1)
         self.model.add(tf.keras.layers.Dense(config.HIDDEN_UNITS, input_shape = [self.inputUnits], use_bias = True))
         self.model.add(tf.keras.layers.Dense(1, use_bias = True))
-        self.model.compile(loss = 'meanSquaredError', optimizer = tf.keras.optimizers.Adam(self.learningRate))
+        self.model.compile(optimizer = tf.keras.optimizers.Adam(self.learningRate), loss='mean_squared_error')
     
     def update(self, score):
         avgScore = score / self.turns
-        inputMatrix = tf.constant(self.pickedActions, shape = [len(self.pickedActions), self.inputUnits])
+        action_counts = len(self.pickedActions)
+        # make a matrix of the picked actions
+        inputMatrix = tf.stack(self.pickedActions)
         labels = tf.constant([avgScore for n in self.pickedActions],
-         shape = [len(self.pickedActions), 1],
+         shape = [action_counts, 1],
          dtype = tf.float32)
         self.updateModel(inputMatrix, labels)
     

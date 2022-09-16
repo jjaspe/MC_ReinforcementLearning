@@ -45,7 +45,6 @@ class PickHandPermutationPolicy(BaseRLPolicy):
         predictions = self.model.predict(inputMatrix)
         pickedCombinationIndex = self.predictionPicker(predictions)
         pickedCombination = possiblePlayedCards[pickedCombinationIndex]
-        # var test = inputMatrix.arraySync()
         # Save actions for update
         self.pickedActions.append(inputMatrix.numpy()[pickedCombinationIndex])
         log(pickedCombination)

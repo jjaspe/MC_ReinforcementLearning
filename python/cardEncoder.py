@@ -7,7 +7,7 @@ class BaseEncoder:
         self.cards = cards
 
     def getOneHotEncodedCardByIndex(self, index):
-        return self.cardMatrix.arraySync()[index]
+        return self.cardMatrix[index]
 
     def buildCardMatrix(self, uniqueCards):
         indeces = range(len(uniqueCards))
@@ -15,7 +15,7 @@ class BaseEncoder:
         return matrix
 
     def getOneHotEncodedCombinationByIndeces(self, indeces):
-        matrix = self.cardMatrix.arraySync()
+        matrix = self.cardMatrix
         oneHots = indeces.map(lambda n: matrix[n])
         return oneHots
 

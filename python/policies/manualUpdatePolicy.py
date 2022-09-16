@@ -43,4 +43,4 @@ class ManualUpdatesPolicy(BasePolicy):
         return cards
 
     def peek(self):
-        return self.policy.arraySync()
+        return self.policy

@@ -53,8 +53,8 @@ class PickCardAtATimePreferencePolicy(BaseRLPolicy):
         pickedCardIndex = self.predictionPicker(predictions)
         pickedCard = uniqueCards[pickedCardIndex]
         # Save picked Card as index array
-        self.pickedActions.push(inputMatrix.arraySync()[pickedCardIndex])
-        self.pastPredictionProbs.push(predictions.arraySync())
+        self.pickedActions.push(inputMatrix[pickedCardIndex])
+        self.pastPredictionProbs.push(predictions)
         # log({damage:pickedCard.attack, cost:pickedCard.cost})
 
         # var newHistory = pickedCard.attack

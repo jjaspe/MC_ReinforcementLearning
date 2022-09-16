@@ -1,3 +1,4 @@
+import math
 import config
 
 class UnderCostBudgetAttackLayer:
@@ -6,4 +7,4 @@ class UnderCostBudgetAttackLayer:
         for card in cards:
             if card.cost <= world.turnBudget:
                 world.boss.health = world.hero.attackAction(world.boss, card)
-            world.turnBudget -= card.cost
+            world.turnBudget -= max(1, card.cost)

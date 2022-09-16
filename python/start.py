@@ -68,11 +68,12 @@ def OptimizeOverLearningRates(learningRates):
         startPolicy = policy.peek()
         log('Starting Policy:', startPolicy)
         scores = optimizer.optimize(epochs)
-        results.append({'learningRate': learningRates[i], scores: scores})
+        results.append({'learningRate': learningRates[i], 'scores': scores})
         endPolicy = policy.peek()
         log('Ending Policy:', endPolicy)
-        difference = tf.sub(endPolicy, startPolicy).arraySync()
+        difference = tf.subtract(endPolicy, startPolicy)
         log('Policy Change:', difference)
+    return results
 
 cardsPerType = config.DECK_SIZE/(config.MAX_HERO_ALLY_ATTACK+1)
 healthFrom2s = 2*cardsPerType
@@ -81,5 +82,13 @@ otherTurns = (config.BOSS_HEALTH - healthFrom2s)/3
 optScore = config.SCORE_MULTIPLIER * (config.HERO_HEALTH - config.BOSS_ATTACK*(turnsFrom2s+otherTurns))
 log('Opt Score:', optScore)
 
-OptimizeOverLearningRates(learningRates)
+results = OptimizeOverLearningRates(learningRates)
+
+# plot scores
+for i in range(len(results)):
+    plt.plot(results[i]['scores'], label='learningRate: '+str(results[i]['learningRate']))
+# plt.plot([optScore]*epochs, label='optimal score')
+# plt.legend()
+plt.show()
+
 
