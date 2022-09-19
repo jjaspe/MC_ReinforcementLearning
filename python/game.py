@@ -1,75 +1,49 @@
-class Game:
-    def __init__(self, world, layers):
-        self.world = world
-        self.layers = layers
-        self.startGameLayer = layers.pop(0)
-        self.payForCardsLayer = layers.pop(0)
-        self.pickAttackCardLayer = layers.pop(0)
-        self.attackLayer = layers.pop(0)
-        self.exhaustCardLayer = layers.pop(0)
-        self.playerContinueTurnLayer = layers.pop(0)
-        self.rebuildHandLayer = layers.pop(0)
-        self.bossDrawLayer = layers.pop(0)
-        self.bossAttackLayer = layers.pop(0)
-        self.heroDefendLayer = layers.pop(0)
-        self.bossEndTurnLayer = layers.pop(0)
+from config import config, log
+from models.match import Match
+from models.world import World
 
-    # def drawCard(self, hand, deck, handSize):
-    #     if len(deck) < handSize:
-    #         deck = makeDeck(40)
-    #         log('rebuilding deck')
-    #     for x in range(len(hand), handSize):
+class Game:
+    def __init__(self, policy, deckBuilder, ruleset):
+        self.deckBuilder = deckBuilder
+        self.policy = policy
+        self.heroDeck = []
+        self.bossDeck = []
+        self.ruleset = ruleset
+
+    def makeWorld(self):
+        hero = self.deckBuilder.makeHero()
+        boss = self.deckBuilder.makeBoss()
+        if len(self.heroDeck) == 0:
+            self.heroDeck = self.deckBuilder.buildFullDeck(self.deckBuilder.cards, config.DECK_SIZE)
+        if len(self.bossDeck) == 0:
+            self.bossDeck = self.deckBuilder.buildFullDeck(self.deckBuilder.cards, config.DECK_SIZE)
+        self.world = World(self.deckBuilder.cards, hero, boss, self.heroDeck, self.bossDeck)
+        self.world.isPlayerTurn = True
+        return self.world
+
+    def makeMatch(self):
+        world = self.makeWorld()        
+        world.heroHand = self.deckBuilder.buildHand(world.heroDeck, config.HAND_SIZE)
+        layers = self.ruleset.makeLayers(self.policy, world)
+        match = Match(world, layers)
+        return match
+
+
+    # def removeCardsFromHand(self, cards, hand):
+    #     for card in cards:
+    #         index = hand.index(card)
+    #         if index != -1:
+    #             hand.pop(index)
+    #     return hand
+
+    # def fillHand(self, hand, deck):
+    #     while len(hand) < config.HAND_SIZE:
     #         hand.append(deck.pop())
+
+    # def ensureHeroDeck(self, deck):
+    #     if len(deck) < config.DECK_SIZE:
+    #         deck = self.deckBuilder.buildFullDeck(self.deckBuilder.cards, config.DECK_SIZE)
     #     return deck
 
-    def isdead(self, unit):
-        if unit.health <= 0:
-            return True
-        else:
-            return False
 
-    def payForCards(self, playedCard, hand):
-        hand.pop(0, playedCard.cost)
-
-    def start(self):
-        return self.playWithLayers()
-
-    def playWithLayers(self):
-        world = self.world
-        hero = world.hero
-        boss = world.boss
-        gameEnd = False
-        victory = False
-        scheme = 0
-        handNumber = 0
-        self.startGameLayer.execute(world)
-        while not gameEnd:
-            log('Playing hand ' + str(handNumber))
-            handNumber += 1
-            while world.isPlayerTurn:
-                self.payForCardsLayer.execute(world)
-                self.pickAttackCardLayer.execute(world)
-                self.attackLayer.execute(world)
-                self.playerContinueTurnLayer.execute(world)
-                if self.isdead(boss):
-                    gameEnd = True
-                    victory = True
-                    break
-            if not gameEnd:
-                # play the rest of the layers
-                while not world.isPlayerTurn:
-                    self.rebuildHandLayer.execute(world)
-                    self.bossDrawLayer.execute(world)
-                    self.bossAttackLayer.execute(world)
-                    self.heroDefendLayer.execute(world)
-                    self.bossEndTurnLayer.execute(world)
-                    if self.isdead(hero):
-                        gameEnd = True
-                        break
-        log('Victory' if victory else 'Defeat')
-        log('Hero:', hero.health, '   ', 'Boss:', boss.health)
-        return victory
-
-if __name__ == '__main__':
-    pass
 

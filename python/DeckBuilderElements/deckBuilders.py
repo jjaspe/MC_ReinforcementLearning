@@ -1,7 +1,7 @@
 import math
 from DeckBuilderElements.postBuilders import DefaultPostBuilder
 from config import config, log
-from models.classes import Ally
+from models.killable import Killable
 from models.hero import Hero
 from models.boss import Boss
 from DeckBuilderElements.handBuilders import BaseHandBuilder, HAND_BUILDER_TYPES
@@ -41,7 +41,7 @@ class DamageOnlyDeckBuilder(BaseDeckBuilder):
     def buildCards(self):
         cards = []
         for i in range(self.minDamage, self.maxDamage + 1):
-            ally = Ally('Ally Damage ' + str(i), '', 0, i, 0)
+            ally = Killable('Ally Damage ' + str(i), '', 0, i, 0)
             cards.append(ally)
         return cards
 
@@ -57,7 +57,7 @@ class DamageAndCostDeckBuilder(BaseDeckBuilder):
         cards = []
         for i in range(self.minDamage, self.maxDamage + 1):
             cost = math.min(self.maxCost, math.max(self.minCost, math.floor(i / 2)))
-            ally = Ally('Ally Damage ' + str(i) + ' Cost: ' + str(cost), '', 0, i, 0)
+            ally = Killable('Ally Damage ' + str(i) + ' Cost: ' + str(cost), '', 0, i, 0)
             ally.cost = cost
             cards.append(ally)
         return cards
@@ -74,7 +74,7 @@ class DamageAndSquaredCostDeckBuilder(BaseDeckBuilder):
         cards = []
         for i in range(self.minDamage, self.maxDamage + 1):
             cost = math.min(self.maxCost, math.max(self.minCost, math.floor(i**2 / 2)))
-            ally = Ally('Ally Damage ' + str(i) + ' Cost: ' + str(cost), '', 0, i, 0)
+            ally = Killable('Ally Damage ' + str(i) + ' Cost: ' + str(cost), '', 0, i, 0)
             ally.cost = cost
             cards.append(ally)
         return cards
@@ -106,7 +106,7 @@ class DamageAndCustomCostDeckBuilder(BaseDeckBuilder):
                 cost = 4
             else:
                 cost = self.maxCost
-            ally = Ally('Ally Damage ' + str(i) + ' Cost: ' + str(cost), '', 0, i, 0)
+            ally = Killable('Ally Damage ' + str(i) + ' Cost: ' + str(cost), '', 0, i, 0)
             ally.cost = cost
             cards.append(ally)
         return cards
@@ -145,7 +145,7 @@ class NormalizedDamageAndSquaredCostDeckBuilder(BaseDeckBuilder):
         cards = []
         for i in range(self.minDamage, self.maxDamage + 1):
             cost = math.min(self.maxCost, math.max(self.minCost, math.floor(i / 2)))
-            ally = Ally('Ally Damage ' + str(i) + ' Cost: ' + str(cost), '', 0, i/self.scale, 0)
+            ally = Killable('Ally Damage ' + str(i) + ' Cost: ' + str(cost), '', 0, i/self.scale, 0)
             ally.cost = cost
             cards.append(ally)
         return cards

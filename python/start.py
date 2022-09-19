@@ -15,14 +15,15 @@ from GameLayers.playerEndTurnLayer import TurnBudgetUsedPlayerEndTurnLayer
 from GameLayers.drawCardsLayer import RebuildInitialHandDrawCardsLayer
 from GameLayers.bossDrawLayer import DefaultBossDrawLayer
 from policies.policyTypes import POLICY_TYPES
-from models.game import Game
+from models.match import Match
 from DeckBuilderElements.handBuilders import HAND_BUILDER_TYPES, BaseHandBuilder
-from rulesets import BaseRuleset
+from game import Game
 from GameLayers.gameScorer import ExpScorer
 from cardEncoder import DamageAndCostEncoder
 from optimizers import BatchPassPickBestOptimizer
 from policies.policyFactory import PolicyFactory
 from DeckBuilderElements.deckBuilderFactory import DeckBuilderFactory, DECK_BUILDER_TYPES
+from rulesets.playerOneCardAtATimeRuleset import PlayerOneCardAtATimeRuleset
 
 # explain this error: ValueError: source code string cannot contain null bytes
 # this error means that the string contains a null byte, which is not allowed in python
@@ -33,25 +34,6 @@ epochs = config.EPOCHS
 deckBuilderType = DECK_BUILDER_TYPES.DAMAGE_AND_CUSTOM_COST
 policyType = POLICY_TYPES.RL_PICK_CARD_AT_A_TIME
 
-def GameInitializer (ruleset, deckBuilder, policy):
-    world = ruleset.makeWorld()
-    world.heroHand = deckBuilder.buildHand(world.heroDeck, config.HAND_SIZE)
-    layers = [
-        DefaultStartGameLayer(),
-        DefaultPickPayingCardsLayer(),
-        OneCardPickAttackCardsLayer(policy),
-        UnderCostBudgetAttackLayer(),
-        DefaultExhaustAttackCardsLayer(),
-        TurnBudgetUsedPlayerEndTurnLayer(),
-        RebuildInitialHandDrawCardsLayer(world.heroHand),
-        DefaultBossDrawLayer(),
-        DamageOnlyBossAttackLayer(),
-        DefaultHeroDefendLayer(),
-        DefaultBossEndTurnLayer()
-    ]
-    game = Game(world, layers)
-    return game
-
 def OptimizeOverLearningRates(learningRates):
     results = []
     for i in range(len(learningRates)):
@@ -60,8 +42,8 @@ def OptimizeOverLearningRates(learningRates):
         encoder = DamageAndCostEncoder(deckBuilder.cards)
         policy = PolicyFactory.makePolicy(policyType, encoder, learningRates[i])
         policy.predictionPicker = lambda n : policy.pickMax(n)
-        ruleset = BaseRuleset(policy, deckBuilder)
-        initializer = lambda  : GameInitializer(ruleset, deckBuilder, policy)
+        game = Game(policy, deckBuilder, PlayerOneCardAtATimeRuleset())
+        initializer = lambda  : game.makeMatch()
         scorer = ExpScorer(1, 1)
         optimizer = BatchPassPickBestOptimizer(initializer, policy, scorer, config.EXPLORE_BATCH_SIZE)
 

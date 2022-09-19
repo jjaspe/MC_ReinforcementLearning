@@ -1,6 +1,6 @@
-from models.classes import Ally
+from models.killable import Killable
 
-class Hero(Ally):
+class Hero(Killable):
   def __init__(self, name, text, health, attack, thwart):
     super().__init__(name, text, health, attack, thwart)
     self.alterEgo = None
@@ -59,13 +59,7 @@ class Hero(Ally):
       if not self.inHeroForm:
         self.alterEgo.playerPhase(boss, card, self)
 
-  def villainPhase(self, damage):
-    self.damageOnlyVillainPhase(damage)
-
-  def playerPhase(self, world, hand):
-    self.ruleset.playerPhase(world, hand)
-
-class AlterEgo(Ally):
+class AlterEgo(Killable):
   def __init__(self, name, text, health, regen):
     super().__init__(name, text, health, 0, 0)
     self.regen = regen

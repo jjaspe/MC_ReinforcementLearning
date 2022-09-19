@@ -1,12 +1,6 @@
 from config import config, log
 
-def is_dead(unit):
-    if unit.health <= 0:
-        return True
-    else:
-        return False
-
-class Game:
+class Match:
     def __init__(self, world, layers):
         self.world = world
         self.layers = layers
@@ -42,7 +36,7 @@ class Game:
                 self.pickAttackCardLayer.execute(world)
                 self.attackLayer.execute(world)
                 self.playerContinueTurnLayer.execute(world)
-                if is_dead(boss):
+                if boss.is_dead():
                     gameEnd = True
                     victory = True
                     break
@@ -54,7 +48,7 @@ class Game:
                     self.bossAttackLayer.execute(world)
                     self.heroDefendLayer.execute(world)
                     self.bossEndTurnLayer.execute(world)
-                    if is_dead(hero):
+                    if hero.is_dead():
                         gameEnd = True
                         break
         log('Victory' if victory else 'Defeat')

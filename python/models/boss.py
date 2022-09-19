@@ -1,6 +1,7 @@
-from models.classes import Ally
+from models.killable import Killable
+from config import config, log
 
-class Boss(Ally):
+class Boss(Killable):
   def __init__(self, name, text, health, attack, thwart):
       super().__init__(name, text, health, attack, thwart)
 
@@ -22,11 +23,5 @@ class Boss(Ally):
       else:
           #do damage to hero
           log('do damage to hero')
-
-  def damageOnly(self, hero, scheme, villainDeck):
-      hero.villainPhase(self.attack)
-
-  def villainPhase(self, hero, scheme, villainDeck):
-      self.damageOnly(hero, scheme, villainDeck)
 
 

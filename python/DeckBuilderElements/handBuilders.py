@@ -1,5 +1,5 @@
 import tensorflow as tf
-from models.classes import Ally
+from models.killable import Killable
 from config import config, log
 import random
 
@@ -40,11 +40,11 @@ class NOfEachHandBuilder(BaseHandBuilder):
         for i in range(self.minDamage, self.maxDamage + 1):
             card = next((n for n in deck if n.attack == i), None)
             if not card:
-                card = Ally('Ally Damage ' + str(i) + ' Cost: ' + str(config.COST), '', 0, i, 0)
+                card = Killable('Ally Damage ' + str(i) + ' Cost: ' + str(config.COST), '', 0, i, 0)
             for j in range(n):
                 hand.append(card)
         while len(hand) < handSize:
-            hand.append(Ally('Ally Damage ' + str(0) + ' Cost: ' + str(config.COST), '', 0, 0, 0))
+            hand.append(Killable('Ally Damage ' + str(0) + ' Cost: ' + str(config.COST), '', 0, 0, 0))
         return hand
 
 class DrawFromTopOfDeckHandBuilder(BaseHandBuilder):
@@ -59,7 +59,7 @@ class DrawFromTopOfDeckHandBuilder(BaseHandBuilder):
             if card.attack >= self.minDamage and card.attack <= self.maxDamage:
                 hand.append(card)
             else:
-                hand.append(Ally('Ally Damage ' + str(0) + ' Cost: ' + str(config.COST), '', 0, 0, 0))
+                hand.append(Killable('Ally Damage ' + str(0) + ' Cost: ' + str(config.COST), '', 0, 0, 0))
                 deck.append(card)
         return hand
 
