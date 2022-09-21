@@ -1,9 +1,9 @@
 import tensorflow as tf
 from policies.basePolicy import BasePolicy
-from policies.baseRLPolicy import BaseRLPolicy
+from policies.baseRLPolicy import BaseActionRLPolicy
 from config import config, log
 
-class PickCardAtATimeUpdateAllActionsPolicy(BaseRLPolicy):
+class PickCardAtATimeUpdateAllActionsPolicy(BaseActionRLPolicy):
     def __init__(self, encoder, predictionPicker, hiddenLayers = 0, learningRate = 0.1):
         super().__init__(encoder, predictionPicker, learningRate)
         self.inputUnits = self.encoder.inputUnits
@@ -11,9 +11,10 @@ class PickCardAtATimeUpdateAllActionsPolicy(BaseRLPolicy):
         self.predictionPicker = predictionPicker
         self.notPickedActions = []
         self.model = tf.keras.Sequential()
-        self.model.initialWeights = tf.random.uniform([self.inputUnits, 1], 0, 1)
-        self.model.add(tf.keras.layers.Dense(config.HIDDEN_UNITS, input_shape = [self.inputUnits], use_bias = True))
-        self.model.add(tf.keras.layers.Dense(1, use_bias = True))
+        initializer = tf.keras.initializers.Zeros()
+        self.model.add(tf.keras.layers.Dense(config.HIDDEN_UNITS, input_shape = [self.inputUnits], use_bias = True,
+            kernel_initializer = initializer, bias_initializer = initializer))
+        self.model.add(tf.keras.layers.Dense(1, use_bias = True, kernel_initializer = initializer, bias_initializer = initializer))
         self.model.compile(optimizer = tf.keras.optimizers.Adam(self.learningRate), loss='mean_squared_error')
     
     def update(self, score):

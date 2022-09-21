@@ -3,10 +3,10 @@ import tensorflow as tf
 import numpy as np
 import random
 import math
-from baseRLPolicy import BaseRLPolicy
+from baseRLPolicy import BaseActionRLPolicy
 
 
-class PickCardAtATimePreferencePolicy(BaseRLPolicy):
+class PickCardAtATimePreferencePolicy(BaseActionRLPolicy):
     def __init__(self, encoder, predictionPicker, hiddenLayers = 0, learningRate = 0.1):
         super().__init__(encoder, predictionPicker, learningRate)
         self.inputUnits = self.encoder.inputUnits

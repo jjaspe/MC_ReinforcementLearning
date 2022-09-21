@@ -5,7 +5,6 @@ class SinglePassOptimizer:
     def __init__(self, gameInitializer, policy, scorer):
         self.gameInitializer = gameInitializer
         self.policy = policy
-        self.encoder = self.policy.encoder
         self.scorer = scorer
 
     def optimize(self, epochs=100):

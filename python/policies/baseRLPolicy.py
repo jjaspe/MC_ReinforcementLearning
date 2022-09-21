@@ -3,7 +3,7 @@ import numpy as np
 from policies.basePolicy import BasePolicy
 from config import config, log
 
-class BaseRLPolicy(BasePolicy):
+class BaseActionRLPolicy(BasePolicy):
     def __init__(self, encoder, predictionPicker, learningRate = 0.1):
         super().__init__()
         self.history = []

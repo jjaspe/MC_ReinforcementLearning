@@ -56,10 +56,10 @@ class DamageAndCostDeckBuilder(BaseDeckBuilder):
     def buildCards(self):
         cards = []
         for i in range(self.minDamage, self.maxDamage + 1):
-            cost = math.min(self.maxCost, math.max(self.minCost, math.floor(i / 2)))
-            ally = Killable('Ally Damage ' + str(i) + ' Cost: ' + str(cost), '', 0, i, 0)
-            ally.cost = cost
-            cards.append(ally)
+            cost = min(self.maxCost, max(self.minCost, math.floor(i / 2)))
+            card = Killable('Ally Damage ' + str(i) + ' Cost: ' + str(cost), '', 0, i, 0)
+            card.cost = cost
+            cards.append(card)
         return cards
 
 class DamageAndSquaredCostDeckBuilder(BaseDeckBuilder):

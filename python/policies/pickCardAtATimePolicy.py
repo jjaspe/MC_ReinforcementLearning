@@ -1,9 +1,9 @@
 import tensorflow as tf
 from policies.basePolicy import BasePolicy
-from policies.baseRLPolicy import BaseRLPolicy
+from policies.baseRLPolicy import BaseActionRLPolicy
 from config import config, log
 
-class PickCardAtATimeDensePolicy(BaseRLPolicy):
+class PickCardAtATimeDensePolicy(BaseActionRLPolicy):
     def __init__(self, encoder, predictionPicker, hiddenLayers = 0, learningRate = 0.1):
         super().__init__(encoder, predictionPicker, learningRate)
         self.inputUnits = self.encoder.inputUnits

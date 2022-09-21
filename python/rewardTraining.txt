@@ -1,0 +1,9 @@
+1. Constant hand and constant boss attack BOSS_ATTACK
+- States are only different by hero and boss health
+- Each hero action results in a change of state of minus x health points for boss,
+ and minus BOSS_ATTACK health points for hero.
+- Space of states is BOSS_HEALTH x HERO_HEALTH/BOSS_ATTACK
+- Make a model to predict the worth of each state, 
+then on each turn pick the action that chooses greatest worth
+- When game ends, update states chosen with reward according to win or loss, 
+and possible but not chosen states with opposite of reward, per hand played

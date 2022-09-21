@@ -1,8 +1,8 @@
 import tensorflow as tf
 from config import config, log
-from policies.baseRLPolicy import BaseRLPolicy
+from policies.baseRLPolicy import BaseActionRLPolicy
 
-class PickHandPermutationPolicy(BaseRLPolicy):
+class PickHandPermutationPolicy(BaseActionRLPolicy):
     def __init__(self, encoder, predictionPicker, hiddenLayers=0, learningRate = 0.1):
         super().__init__(encoder, predictionPicker, learningRate)
         self.inputUnits = self.lenUniqueCards*config.HERO_BUDGET

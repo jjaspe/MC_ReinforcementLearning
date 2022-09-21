@@ -40,11 +40,11 @@ class NOfEachHandBuilder(BaseHandBuilder):
         for i in range(self.minDamage, self.maxDamage + 1):
             card = next((n for n in deck if n.attack == i), None)
             if not card:
-                card = Killable('Ally Damage ' + str(i) + ' Cost: ' + str(config.COST), '', 0, i, 0)
+                card = Killable('Ally Damage ' + str(i) + ' Cost: ' + str(config.DEFAULT_COST), '', 0, i, 0)
             for j in range(n):
                 hand.append(card)
         while len(hand) < handSize:
-            hand.append(Killable('Ally Damage ' + str(0) + ' Cost: ' + str(config.COST), '', 0, 0, 0))
+            hand.append(Killable('Ally Damage ' + str(0) + ' Cost: ' + str(config.DEFAULT_COST), '', 0, 0, 0))
         return hand
 
 class DrawFromTopOfDeckHandBuilder(BaseHandBuilder):
