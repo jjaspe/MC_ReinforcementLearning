@@ -33,9 +33,8 @@ def OptimizeOverLearningRates(learningRates):
         deckBuilder = DeckBuilderFactory.makeDeckBuilder(deckBuilderType,handBuilder)
         encoder = DamageAndCostEncoder(deckBuilder.cards)
         state_builder = HeroHealthBossHealthStateConstantBossAttackBuilder()
-        policy = PickCardAtATimeStatePreferencePolicy(state_builder, PredictionPickers.pickMax,
-            learningRate=learningRates[i])
-        # policy = PolicyFactory.makePolicy(policyType, encoder, learningRates[i])
+        policy = PickCardAtATimeStatePreferencePolicy(state_builder, PredictionPickers.pickMax, learningRate=learningRates[i])
+        # policy = PolicyFactory.makePolicy(policyType, encoder, learningRates[i], PredictionPickers.pickMax)
         game = Game(policy, deckBuilder, PlayerOneCardAtATimeRuleset())
         initializer = lambda  : game.makeMatch()
         scorer = LogScorer(1, 1)
