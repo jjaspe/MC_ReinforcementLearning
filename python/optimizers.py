@@ -25,10 +25,10 @@ class SinglePassOptimizer:
         return scores
 
 class BatchPassPickBestOptimizer:
-    def __init__(self, gameInitializer, policy, scorer, batchSize=20):
-        self.gameInitializer = gameInitializer
+    def __init__(self, initializer, policy, scorer, batchSize=20):
+        self.initializer = initializer
         self.policy = policy
-        self.encoder = self.policy.encoder
+        # self.encoder = self.policy.encoder
         self.scorer = scorer
         self.batchSize = batchSize
 
@@ -39,19 +39,22 @@ class BatchPassPickBestOptimizer:
         for x in range(epochs):
             log('Starting epoch:', x)
             bestBatchScore = -float('inf')
-            batchPickedActions = []
+            best_picked_states = []
+            best_not_picked_states = []
             for i in range(self.batchSize):
                 self.policy.onMatchStart()
-                game = self.gameInitializer()
-                isVictory = game.start()
+                match = self.initializer()
+                isVictory = match.start()
                 victories += (1 if isVictory else 0)
-                score = self.scorer.scoreGame(isVictory, game.world)
+                score = self.scorer.scoreGame(isVictory, match.world)
                 if score > bestBatchScore:
                     bestBatchScore = score
-                    batchPickedActions = self.policy.pickedActions
+                    best_picked_states = [self.policy.picked_states]
+                    best_not_picked_states = [self.policy.not_picked_states]
             log('Score:', bestBatchScore)
+            self.policy.batch_update(best_picked_states, best_not_picked_states, [bestBatchScore])
             scores.append(bestBatchScore)
-            self.policy.update(bestBatchScore)
+            # self.policy.update(bestBatchScore)
             history.append(100 * victories / (x + 1))
         return scores
 

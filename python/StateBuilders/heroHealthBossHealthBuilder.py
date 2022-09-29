@@ -6,4 +6,6 @@ class HeroHealthBossHealthStateConstantBossAttackBuilder:
          config.BOSS_HEALTH]
 
     def get_next_state(self, world, card):
-        return [1.0*(world.hero.health - config.BOSS_ATTACK), 1.0*(world.boss.health - card.attack)]
+        next_hero_health = max(0,world.hero.health - config.BOSS_ATTACK)
+        next_boss_health = max(0,world.boss.health - card.attack)
+        return [1.0*next_hero_health, 1.0*next_boss_health]

@@ -66,8 +66,7 @@ def OptimizeOverLearningRates(learningRates):
         game = Game(policy, deckBuilder, PlayerOneCardAtATimeRuleset())
         initializer = lambda  : game.makeMatch()
         scorer = LinearScorer(1/max(config.BOSS_HEALTH, config.HERO_HEALTH))
-        # optimizer = BatchPassPickBestOptimizer(initializer, policy, scorer, config.EXPLORE_BATCH_SIZE)
-        optimizer = BatchPassOptimizer(initializer, policy, scorer, config.EXPLORE_BATCH_SIZE)
+        optimizer = BatchPassPickBestOptimizer(initializer, policy, scorer, config.EXPLORE_BATCH_SIZE)
 
         startPolicy = policy.peek()
         log('Starting Policy:', startPolicy)
@@ -78,7 +77,7 @@ def OptimizeOverLearningRates(learningRates):
         # plot_weights(end_policy)
     return results
 
-learningRates = [0.1]
+learningRates = [0.3]
 epochs = config.EPOCHS
 deckBuilderType = DECK_BUILDER_TYPES.DAMAGE_AND_COST
 policyType = POLICY_TYPES.RL_PICK_CARD_AT_A_TIME
