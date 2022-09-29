@@ -12,6 +12,19 @@ class DefaultScorer:
         score = baseScore * (victoryScore if isVictory else defeatScore)
         return score
 
+class LinearScorer:
+    def __init__(self, coeff):
+        self.coeff = coeff
+
+    def scoreGame(self, isVictory, world):
+        hero_health = max(0, world.hero.health)
+        boss_health = max(0, world.boss.health)
+        # one of the above is 0, the other is > 0
+        defeat_score = -boss_health * self.coeff
+        win_score = hero_health * self.coeff
+        score = defeat_score + win_score
+        return score
+
 class ExpScorer:
     def __init__(self, powerConstant, linearConstant):    
         self.powerConstant = powerConstant

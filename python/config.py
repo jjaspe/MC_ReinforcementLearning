@@ -21,8 +21,8 @@ class config:
     PLOT= True
     HIDDEN_UNITS= 3
     HIDDEN_LAYERS= 0
-    EPOCHS= 3
-    EXPLORE_BATCH_SIZE= 2
+    EPOCHS= 500
+    EXPLORE_BATCH_SIZE= 10
     SCORE_MULTIPLIER= 1
 
 

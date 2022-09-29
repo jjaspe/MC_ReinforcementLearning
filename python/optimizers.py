@@ -1,5 +1,6 @@
 import tensorflow as tf
 from config import log
+import numpy as np
 
 class SinglePassOptimizer:
     def __init__(self, gameInitializer, policy, scorer):
@@ -13,10 +14,10 @@ class SinglePassOptimizer:
         scores = []
         for x in range(epochs):
             self.policy.onMatchStart()
-            game = self.gameInitializer()
-            isVictory = game.start()
+            match = self.gameInitializer()
+            isVictory = match.start()
             victories += (1 if isVictory else 0)
-            score = self.scorer.scoreGame(isVictory, game.world)
+            score = self.scorer.scoreGame(isVictory, match.world)
             log('Score:', score)
             scores.append(score)
             self.policy.update(score)
@@ -55,33 +56,37 @@ class BatchPassPickBestOptimizer:
         return scores
 
 class BatchPassOptimizer:
-    def __init__(self, game, batches):
-        self.game = game
-        self.policy = game.ruleset.policy
-        self.encoder = self.policy.encoder
+    def __init__(self, initializer, policy, scorer, batches):
+        self.policy = policy
         self.batches = batches
+        self.initializer = initializer
+        self.scorer = scorer
 
-    def optimize(self, game, epochs=100):
+    def optimize(self, epochs=100):
         history = []
         totalVictories = 0
+        all_scores = []
         for x in range(epochs):
             victories = 0
-            batchUpdates = []
+            batch_picked = []
+            batch_not_picked = []
+            scores = []
             for _pass in range(self.batches):
                 self.policy.onMatchStart()
-                isVictory = self.game.start()
+                match = self.initializer()
+                isVictory = match.start()
                 victories += (1 if isVictory else 0)
-                score = self.scoreGame(isVictory, self.game.world) / len(self.policy.cardIndecesPicked)
-                for index in self.policy.cardIndecesPicked:
-                    oneHotCard = self.encoder.getOneHotEncodedCardByIndex(index)
-                    updates = [n * score for n in oneHotCard]
-                    batchUpdates.append(updates)
-            for update in batchUpdates:
-                self.policy.updatePolicyMatrix(tf.tensor1d(update, 'float32'))
+                score = self.scorer.scoreGame(isVictory, match.world)
+                scores.append(score)
+                batch_picked.append(self.policy.picked_states)
+                batch_not_picked.append(self.policy.not_picked_states)
+            self.policy.batch_update(batch_picked, batch_not_picked, scores)
             history.append(100 * victories / self.batches)
             totalVictories += victories
+            # add all scores from scores into all_scores
+            all_scores.extend(scores)
         log(totalVictories)
-        return history
+        return all_scores
 
 
 

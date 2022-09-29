@@ -1,4 +1,4 @@
-from GameLayers.attackLayer import UnderCostBudgetAttackLayer
+from GameLayers.attackLayer import DefaultAttackLayer, UnderCostBudgetAttackLayer
 from GameLayers.bossAttackLayer import DamageOnlyBossAttackLayer
 from GameLayers.bossDrawLayer import DefaultBossDrawLayer
 from GameLayers.bossEndTurnLayer import DefaultBossEndTurnLayer
@@ -20,7 +20,7 @@ class PlayerOneCardAtATimeRuleset():
             DefaultStartGameLayer(),
             DefaultPickPayingCardsLayer(),
             OneCardPickAttackCardsLayer(policy),
-            UnderCostBudgetAttackLayer(),
+            DefaultAttackLayer(),
             DefaultExhaustAttackCardsLayer(),
             DefaultPlayerEndTurnLayer(),
             RebuildInitialHandDrawCardsLayer(world.heroHand),

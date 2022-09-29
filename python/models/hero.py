@@ -33,7 +33,7 @@ class Hero(Killable):
     return boss.health
 
   def takeDamage(self, damage):
-    self.health = self.health - max(damage, 0)
+    self.health = max(0,self.health - max(damage, 0))
 
   def damageOnlyVillainPhase(self, damage):
     self.takeDamage(damage)
