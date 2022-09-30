@@ -20,39 +20,6 @@ from DeckBuilderElements.deckBuilderFactory import DeckBuilderFactory, DECK_BUIL
 from rulesets.playerOneCardAtATimeRuleset import PlayerOneCardAtATimeRuleset
 from policies.pickCardAtATimeStatePreferencePolicy import PickCardAtATimeStatePreferencePolicy
 
-# explain this error: ValueError: source code string cannot contain null bytes
-# this error means that the string contains a null byte, which is not allowed in python
-
-
-def plot_weights(weights):    
-    fig = plt.figure(figsize=(6, 3.2))
-    ax = fig.add_subplot(111)
-    ax.set_title('colorMap')
-    plt.imshow(weights)        
-    ax.set_aspect('equal')
-    cax = fig.add_axes([0.12, 0.1, 0.78, 0.8])
-    cax.get_xaxis().set_visible(False)
-    cax.get_yaxis().set_visible(False)
-    cax.patch.set_alpha(0)
-    cax.set_frame_on(False)
-    plt.colorbar(orientation='vertical')
-
-def plot_weights_mesh(policy):
-    ax = plt.axes(projection='3d')
-    x = np.linspace(0, config.HERO_HEALTH, config.HERO_HEALTH + 1, dtype=int)
-    y = np.linspace(0, config.BOSS_HEALTH, config.BOSS_HEALTH + 1, dtype=int)
-    X, Y = np.meshgrid(x, y)
-    # make all tuples from x and y
-    # Z = np.array([policy[x,y] for x,y in zip(np.ravel(X), np.ravel(Y))])
-    fig = plt.figure()
-    ax = plt.axes(projection='3d')
-    ax.contour3D(y, x, policy, 50, cmap='binary')
-    ax.set_xlabel('Hero Health')
-    ax.set_ylabel('Boss Health')
-    ax.set_zlabel('Weight')
-    ax.view_init(60, 35)
-    plt.show()
-
 def OptimizeOverLearningRates(learningRates):
     results = []
     for i in range(len(learningRates)):
@@ -60,8 +27,8 @@ def OptimizeOverLearningRates(learningRates):
         deckBuilder = DeckBuilderFactory.makeDeckBuilder(deckBuilderType,handBuilder)
         encoder = DamageAndCostEncoder(deckBuilder.cards)
         state_builder = HeroHealthBossHealthStateConstantBossAttackBuilder()
-        # policy = PickCardAtATimeStatePreferencePolicy(state_builder, PredictionPickers.pickMax, learningRate=learningRates[i])
-        policy = PickCardAtATimeStatePreferencePolicyManual(state_builder, PredictionPickers.pickMax, learningRate=learningRates[i])
+        policy = PickCardAtATimeStatePreferencePolicy(state_builder, PredictionPickers.pickMax, learningRate=learningRates[i])
+        
         # policy = PolicyFactory.makePolicy(policyType, encoder, learningRates[i], PredictionPickers.pickMax)
         game = Game(policy, deckBuilder, PlayerOneCardAtATimeRuleset())
         initializer = lambda  : game.makeMatch()
@@ -74,10 +41,10 @@ def OptimizeOverLearningRates(learningRates):
         results.append({'learningRate': learningRates[i], 'scores': scores})
         end_policy = policy.peek()
         log('Ending Policy:', end_policy)
-        # plot_weights(end_policy)
+        policy.plot_weights()
     return results
 
-learningRates = [0.3]
+learningRates = [0.03]
 epochs = config.EPOCHS
 deckBuilderType = DECK_BUILDER_TYPES.DAMAGE_AND_COST
 policyType = POLICY_TYPES.RL_PICK_CARD_AT_A_TIME
@@ -94,8 +61,10 @@ results = OptimizeOverLearningRates(learningRates)
 if(len(learningRates) > 1):
     fig, axs = plt.subplots(1, len(learningRates), sharey=True, tight_layout=True)
     # plot results in same screen
-    for i in range(len(results)):            
-        axs[i].plot(results[i]['scores'], label=('Learning Rate: ' + str(results[i]['learningRate'])))
+    i = 0
+    for result in results:  
+        i += 1          
+        axs[i].plot(result['scores'], label=('Learning Rate: ' + str(result['learningRate'])))
 else:
     plt.plot(results[0]['scores'], label=('Learning Rate: ' + str(results[0]['learningRate'])))
 

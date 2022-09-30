@@ -1,13 +1,13 @@
 # the following is the above code in python
 
 class config:
-    HAND_SIZE= 8
+    HAND_SIZE= 5
     DECK_SIZE= 100
     COST_DIVISOR= 2
-    BOSS_HEALTH= 20
+    BOSS_HEALTH= 40
     BOSS_ATTACK= 3
     BOSS_SCHEME= 1
-    HERO_HEALTH= 18
+    HERO_HEALTH= 36
     HERO_ATTACK= 0
     MAX_HERO_ALLY_ATTACK= 5
     MIN_HERO_ALLY_ATTACK= 1
@@ -21,8 +21,8 @@ class config:
     PLOT= True
     HIDDEN_UNITS= 3
     HIDDEN_LAYERS= 0
-    EPOCHS= 300
-    EXPLORE_BATCH_SIZE= 100
+    EPOCHS= 20
+    EXPLORE_BATCH_SIZE= 1
     SCORE_MULTIPLIER= 1
 
 

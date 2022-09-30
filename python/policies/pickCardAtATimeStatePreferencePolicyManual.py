@@ -3,6 +3,7 @@ from policies.basePolicy import BasePolicy
 import tensorflow as tf
 from config import config, log
 import numpy as np
+import matplotlib.pyplot as plt
 
 '''
     This is a policy that uses a hardcoded map of states to rewards
@@ -39,6 +40,20 @@ class PickCardAtATimeStatePreferencePolicyManual(ActionRLPolicy):
 
     def getStateReward(self, state):
         return self.state_weights[int(state[0]), int(state[1])]
+    
+    def plot_weights(self):    
+        weights = self.state_weights
+        fig = plt.figure(figsize=(6, 3.2))
+        ax = fig.add_subplot(111)
+        ax.set_title('colorMap')
+        plt.imshow(weights)        
+        ax.set_aspect('equal')
+        cax = fig.add_axes([0.12, 0.1, 0.78, 0.8])
+        cax.get_xaxis().set_visible(False)
+        cax.get_yaxis().set_visible(False)
+        cax.patch.set_alpha(0)
+        cax.set_frame_on(False)
+        plt.colorbar(orientation='vertical')
 
     def pickCards(self, hand, world):
         # for each card in hand, find the state that we would be in if we picked that card
@@ -93,13 +108,3 @@ class PickCardAtATimeStatePreferencePolicyManual(ActionRLPolicy):
             indeces = input_states[i].astype(int)
             change = self.learningRate * (labels[i] - self.state_weights[indeces[0], indeces[1]])
             self.state_weights[indeces[0], indeces[1]] += self.learningRate * change[0]
-
-    # def update_weights_without_loop(self, input_states, labels):
-    #     # cast input_stats[i] to int
-    #     indeces = input_states.astype(int)
-    #     # reshaped = self.state_weights.reshape(len(self.state_weights), 1) 
-    #     weights = [self.state_weights[tuple(i)] for i in indeces]
-    #     flattened_weights = weights.reshape(len(indeces), 1)
-    #     changes = self.learningRate * (labels - flattened_weights)
-    #     flattened_weights += changes
-    #     self.state_weights = weights.reshape(config.HERO_HEALTH+1, config.BOSS_HEALTH+1)

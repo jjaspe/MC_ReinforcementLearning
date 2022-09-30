@@ -7,3 +7,6 @@ from policies.basePolicy import BasePolicy
 class ActionRLPolicy(BasePolicy):    
     def normState(self, state):
         return state / [config.HERO_HEALTH, config.BOSS_HEALTH]
+
+    def plot_weights(self):
+        pass

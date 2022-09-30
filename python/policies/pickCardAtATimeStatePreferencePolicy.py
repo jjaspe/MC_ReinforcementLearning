@@ -1,8 +1,10 @@
+from policies.actionRLPolicy import ActionRLPolicy
 from policies.basePolicy import BasePolicy
 import tensorflow as tf
 from config import config
+import matplotlib.pyplot as plt
 
-class PickCardAtATimeStatePreferencePolicy(BasePolicy):
+class PickCardAtATimeStatePreferencePolicy(ActionRLPolicy):
     def __init__(self, state_builder, predictionPicker,
     hiddenLayers = 0, learningRate = 0.1):
         super().__init__()
@@ -14,13 +16,14 @@ class PickCardAtATimeStatePreferencePolicy(BasePolicy):
         self.state_builder = state_builder
 
         self.model = tf.keras.Sequential()
-        initializer = tf.keras.initializers.Ones()
-        self.model.add(tf.keras.layers.Dense(config.HIDDEN_UNITS, input_shape = [2], use_bias = True,
+        initializer = tf.keras.initializers.constant(1/(max(config.BOSS_HEALTH, config.HERO_HEALTH)))
+        self.model.add(tf.keras.layers.Dense(1, input_shape = [2], use_bias = True,
         kernel_initializer = initializer))
-        self.model.add(tf.keras.layers.Dense(1, use_bias = True, kernel_initializer = initializer))
+        # self.model.add(tf.keras.layers.Dense(1, use_bias = True, kernel_initializer = initializer))
         self.model.compile(optimizer = tf.keras.optimizers.Adam(self.learningRate)
         , loss='mean_squared_error'
-        , metrics=['mse', 'mae'])    
+        , metrics=['mse', 'mae'])   
+        self.weight_history = [] 
     
     def peek(self):
         return self.model.get_weights()    
@@ -67,6 +70,20 @@ class PickCardAtATimeStatePreferencePolicy(BasePolicy):
         # update model
         self.model.fit(inputs, labels, epochs = 10, verbose=0)
 
+    def plot_weights(self):
+        weights = self.weight_history
+        fig = plt.figure(figsize=(6, 3.2))
+        ax = fig.add_subplot(111)
+        ax.set_title('weight history')
+        plt.imshow(weights)        
+        ax.set_aspect('equal')
+        cax = fig.add_axes([-1, 1, -1, 1])
+        cax.get_xaxis().set_visible(False)
+        cax.get_yaxis().set_visible(False)
+        cax.patch.set_alpha(0)
+        cax.set_frame_on(False)
+        plt.colorbar(orientation='vertical')
+
     def batch_update(self, picked_states, not_picked_states, scores):
         # make an empty tensor to collect all inputs
         inputs = tf.zeros([0, 2], dtype=tf.float32)
@@ -79,5 +96,6 @@ class PickCardAtATimeStatePreferencePolicy(BasePolicy):
             inputs = tf.concat([inputs, inputs_batch], 0)
             labels = tf.concat([labels, labels_batch], 0)
 
+        self.weight_history.append(self.model.get_weights()[0])
         # update model
         self.model.fit(inputs, labels, epochs = 10, verbose=0)
